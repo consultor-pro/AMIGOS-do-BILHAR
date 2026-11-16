@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Amigos do Bilhar — Campeonatos</title>
+<meta name="theme-color" content="#4a2810">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Amigos do Bilhar">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06120c; --felt:#0f5a37; --felt2:#0a3f27; --felt3:#0c4a2f;
+  --wood:#6b3d1c; --wood2:#3e220e; --gold:#e9b44c; --gold2:#f7d48a;
+  --cream:#f4efe2; --muted:#9fb8a8; --line:rgba(233,180,76,.18);
+  --card:rgba(255,255,255,.045); --red:#e0574a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  font-family:'Outfit',system-ui,sans-serif;color:var(--cream);
+  background:
+    radial-gradient(1200px 700px at 50% -10%, rgba(25,120,75,.55), transparent 60%),
+    radial-gradient(900px 600px at 100% 100%, rgba(10,70,45,.5), transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.07;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font-family:inherit;color:var(--cream)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 18px 60px}
+
+/* header */
+.top{position:sticky;top:0;z-index:20;
+  background:linear-gradient(180deg,#7a4520,#4a2810 70%,#2e1808);
+  border-bottom:3px solid #1d0f05;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.top .in{max-width:1180px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;cursor:pointer}
+.brand h1{font-family:'Bebas Neue';font-size:30px;letter-spacing:2px;line-height:1;
+  background:linear-gradient(180deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo{width:46px;height:46px;border-radius:12px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.45),0 0 0 2px rgba(233,180,76,.6)}
+.brand span{font-size:12px;color:#e6cfa9;opacity:.8;letter-spacing:.5px}
+.top .diamonds{display:flex;gap:28px;justify-content:center;padding-bottom:4px;opacity:.7}
+.top .diamonds i{width:6px;height:6px;background:#f3e2bd;transform:rotate(45deg);display:block}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:12px;font-weight:600;font-size:15px;transition:.18s;white-space:nowrap}
+.btn.gold{background:linear-gradient(180deg,var(--gold2),var(--gold) 55%,#c58f2a);color:#2a1a05;box-shadow:0 6px 18px rgba(233,180,76,.25),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn.gold:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(233,180,76,.35)}
+.btn.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+.btn.ghost:hover{background:rgba(255,255,255,.11)}
+.btn.danger{background:rgba(224,87,74,.12);border:1px solid rgba(224,87,74,.35);color:#ffb3aa}
+.btn.danger:hover{background:rgba(224,87,74,.22)}
+.btn.sm{padding:8px 13px;font-size:13.5px;border-radius:10px}
+.btn:disabled{opacity:.4;pointer-events:none}
+
+/* tabs */
+.tabs{display:flex;gap:6px;margin:26px 0 22px;background:rgba(0,0,0,.25);padding:5px;border-radius:14px;width:fit-content;border:1px solid var(--line)}
+.tabs button{padding:10px 20px;border-radius:10px;font-weight:600;color:var(--muted);transition:.2s}
+.tabs button.on{background:linear-gradient(180deg,var(--felt),var(--felt2));color:var(--cream);box-shadow:0 4px 14px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.1)}
+.count{display:inline-block;margin-left:6px;background:rgba(233,180,76,.2);color:var(--gold2);padding:1px 8px;border-radius:20px;font-size:12px}
+
+.sec-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.sec-head h2{font-family:'Bebas Neue';font-size:34px;letter-spacing:1.5px}
+.sub{color:var(--muted);font-size:14px}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;backdrop-filter:blur(6px)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.tcard{position:relative;overflow:hidden;cursor:pointer;transition:.2s;padding:20px 20px 18px}
+.tcard:hover{transform:translateY(-3px);border-color:rgba(233,180,76,.45);box-shadow:0 14px 30px rgba(0,0,0,.4)}
+.tcard::after{content:"";position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;
+  background:radial-gradient(circle,rgba(233,180,76,.14),transparent 70%)}
+.tcard h3{font-size:19px;font-weight:600;margin:10px 0 4px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.3px}
+.badge.rr{background:rgba(70,160,255,.14);color:#9cc9ff;border:1px solid rgba(70,160,255,.3)}
+.badge.ko{background:rgba(233,180,76,.14);color:var(--gold2);border:1px solid rgba(233,180,76,.35)}
+.status{font-size:12.5px;color:var(--muted);margin-top:12px;display:flex;justify-content:space-between}
+.bar{height:6px;background:rgba(255,255,255,.08);border-radius:6px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--felt),var(--gold));border-radius:6px}
+.champ-mini{color:var(--gold2);font-weight:600}
+
+.empty-hero{text-align:center;padding:60px 20px}
+.empty-hero .bigball{display:inline-block;animation:float 4s ease-in-out infinite;filter:drop-shadow(0 18px 20px rgba(0,0,0,.5))}
+.empty-hero h3{font-family:'Bebas Neue';font-size:36px;letter-spacing:1.5px;margin:18px 0 6px}
+.empty-hero p{color:var(--muted);margin-bottom:22px}
+@keyframes float{50%{transform:translateY(-10px) rotate(8deg)}}
+
+/* players */
+.addrow{display:flex;gap:10px;flex-wrap:wrap}
+.inp{flex:1;min-width:180px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;font-size:15px;outline:none;transition:.2s}
+.inp:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(233,180,76,.15)}
+textarea.inp{min-height:110px;resize:vertical;width:100%}
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:18px}
+.pitem{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.07);animation:pop .3s ease}
+.pitem .nm{flex:1;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.x{width:28px;height:28px;border-radius:8px;color:var(--muted);display:grid;place-items:center;font-size:18px}
+.x:hover{background:rgba(224,87,74,.2);color:#ffb3aa}
+.link{color:var(--gold2);font-size:13.5px;font-weight:500;text-decoration:underline;text-underline-offset:3px}
+@keyframes pop{from{opacity:0;transform:scale(.94)}}
+.ball{flex-shrink:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
+
+/* modal */
+.ov-bg{position:fixed;inset:0;background:rgba(2,8,5,.72);backdrop-filter:blur(5px);z-index:50;display:grid;place-items:center;padding:16px;animation:fade .2s}
+.modal{width:100%;max-width:560px;max-height:92vh;overflow:auto;background:linear-gradient(180deg,#123f2a,#0b2b1c);border:1px solid rgba(233,180,76,.3);border-radius:22px;padding:24px;box-shadow:0 30px 80px rgba(0,0,0,.6);animation:rise .25s ease}
+.modal h2{font-family:'Bebas Neue';font-size:32px;letter-spacing:1.5px;margin-bottom:14px}
+.modal label{display:block;font-size:13px;color:var(--muted);font-weight:500;margin:16px 0 7px;text-transform:uppercase;letter-spacing:.8px}
+.modal .inp{width:100%}
+.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px;flex-wrap:wrap}
+@keyframes fade{from{opacity:0}}
+@keyframes rise{from{opacity:0;transform:translateY(16px) scale(.98)}}
+.fmt{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fmtc{padding:14px;border-radius:14px;border:1.5px solid rgba(255,255,255,.12);background:rgba(0,0,0,.2);cursor:pointer;transition:.2s}
+.fmtc b{display:block;font-size:16px;margin:6px 0 2px}
+.fmtc small{color:var(--muted);font-size:12.5px}
+.fmtc.on{border-color:var(--gold);background:rgba(233,180,76,.1);box-shadow:0 0 0 3px rgba(233,180,76,.12)}
+.fmtc .ic{font-size:22px}
+.opts{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.opt{display:flex;align-items:center;gap:8px;font-size:14px;background:rgba(0,0,0,.2);padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.08)}
+.opt input[type=number]{width:56px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 7px}
+.opt input[type=checkbox]{accent-color:var(--gold);width:17px;height:17px}
+.pick{display:flex;flex-wrap:wrap;gap:8px;max-height:230px;overflow:auto;padding:2px}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:6px 12px 6px 6px;border-radius:30px;background:rgba(0,0,0,.25);border:1.5px solid rgba(255,255,255,.1);font-size:14px;cursor:pointer;transition:.15s;user-select:none}
+.chip.on{border-color:var(--gold);background:rgba(233,180,76,.14)}
+.hint{font-size:12.5px;color:var(--muted);margin-top:6px}
+
+/* tournament page */
+.thead{display:flex;align-items:center;gap:14px;margin:24px 0 18px;flex-wrap:wrap}
+.thead h2{font-family:'Bebas Neue';font-size:38px;letter-spacing:1.5px;line-height:1}
+.thead .sp{flex:1}
+.back{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font-size:20px;display:grid;place-items:center}
+.back:hover{background:rgba(255,255,255,.12)}
+.champ{display:flex;align-items:center;gap:18px;padding:20px 24px;margin-bottom:20px;border-radius:20px;
+  background:linear-gradient(120deg,rgba(233,180,76,.25),rgba(233,180,76,.06) 60%);border:1px solid rgba(233,180,76,.5);
+  box-shadow:0 12px 40px rgba(233,180,76,.15);animation:rise .4s}
+.champ .tro{font-size:46px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.4))}
+.champ small{color:var(--gold2);text-transform:uppercase;letter-spacing:2px;font-size:12px;font-weight:600}
+.champ b{display:block;font-family:'Bebas Neue';font-size:40px;letter-spacing:1.5px;line-height:1.05}
+
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.toolbar .tip{font-size:13px;color:var(--muted);margin-left:auto}
+.pool{min-height:58px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px;border-radius:14px;border:1.5px dashed rgba(233,180,76,.3);background:rgba(0,0,0,.18);margin-bottom:16px;transition:.2s}
+.pool .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-right:6px}
+.pool.over{border-color:var(--gold);background:rgba(233,180,76,.08)}
+
+/* bracket */
+.bracket-scroll{overflow:auto;padding:6px 4px 18px;border-radius:18px;
+  background:linear-gradient(180deg,rgba(15,90,55,.35),rgba(10,63,39,.35));border:1px solid var(--line);
+  box-shadow:inset 0 0 60px rgba(0,0,0,.35)}
+.bracket{position:relative;margin:10px 16px}
+.rlabel{position:absolute;top:0;text-align:center;font-family:'Bebas Neue';letter-spacing:1.5px;font-size:20px;color:var(--gold2)}
+.rlabel small{display:block;font-family:'Outfit';font-size:11px;color:var(--muted);letter-spacing:.5px;margin-top:-2px}
+.match{position:absolute;border-radius:14px;overflow:visible;
+  background:linear-gradient(180deg,#14452e,#0d3220);border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 8px 20px rgba(0,0,0,.35)}
+.match.done{border-color:rgba(233,180,76,.35)}
+.match.final{border-color:var(--gold);box-shadow:0 0 0 3px rgba(233,180,76,.15),0 10px 30px rgba(0,0,0,.45)}
+.mnum{position:absolute;left:-2px;top:-9px;font-size:10px;font-weight:700;background:#0a2a1b;border:1px solid rgba(255,255,255,.15);color:var(--muted);padding:1px 7px;border-radius:10px}
+.slot{height:39px;display:flex;align-items:center;padding:0 8px;gap:6px;position:relative;transition:.15s}
+.slot+.slot{border-top:1px solid rgba(255,255,255,.07)}
+.slot:first-of-type{border-radius:14px 14px 0 0}
+.slot:last-of-type{border-radius:0 0 14px 14px}
+.slot.win{background:linear-gradient(90deg,rgba(233,180,76,.28),rgba(233,180,76,.06))}
+.slot.win .pn{color:var(--gold2);font-weight:700}
+.slot.lose .pn{opacity:.45;text-decoration:line-through;text-decoration-color:rgba(255,255,255,.3)}
+.slot.empty,.slot.pend,.slot.bye{font-size:12.5px;color:rgba(159,184,168,.65);font-style:italic;padding-left:12px}
+.slot.empty{color:rgba(233,180,76,.55)}
+.slot.over{background:rgba(233,180,76,.2);box-shadow:inset 0 0 0 2px var(--gold)}
+.pn{display:flex;align-items:center;gap:7px;flex:1;min-width:0;font-size:14px;font-weight:500;cursor:pointer;padding:4px 4px;border-radius:8px;touch-action:none;user-select:none}
+.pn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pn:hover{background:rgba(255,255,255,.06)}
+.chip[data-drag]{touch-action:none}
+.ck{color:var(--gold);font-weight:700;font-size:15px}
+.ovm{font-size:11px;color:var(--gold2);background:rgba(233,180,76,.15);border-radius:6px;padding:2px 5px;cursor:pointer}
+.ovm:hover{background:rgba(224,87,74,.3);color:#fff}
+.dragging{opacity:.35}
+.dragghost{position:fixed;z-index:100;pointer-events:none;transform:translate(-50%,-50%) rotate(-3deg);
+  background:linear-gradient(180deg,#1b5a3b,#0f3a25);border:1.5px solid var(--gold);border-radius:12px;padding:6px 12px;
+  box-shadow:0 14px 30px rgba(0,0,0,.6);display:flex;align-items:center;gap:7px;font-weight:600;font-size:14px}
+
+/* round robin */
+.rr{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;align-items:start}
+@media(max-width:900px){.rr{grid-template-columns:1fr}}
+.round h4{font-family:'Bebas Neue';font-size:22px;letter-spacing:1.3px;color:var(--gold2);margin:4px 0 10px;display:flex;justify-content:space-between;align-items:center}
+.round h4 small{font-family:'Outfit';font-size:12px;color:var(--muted);letter-spacing:0}
+.round+.round{margin-top:20px}
+.rm{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:9px 10px;border-radius:14px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.07);margin-bottom:8px;transition:.2s}
+.rm.done{border-color:rgba(233,180,76,.3)}
+.rp{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;cursor:pointer;min-width:0;transition:.15s;font-weight:500}
+.rp span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rp:hover{background:rgba(255,255,255,.06)}
+.rp.r{flex-direction:row-reverse;text-align:right}
+.rp.win{background:rgba(233,180,76,.18);color:var(--gold2);font-weight:700}
+.rp.lose{opacity:.45}
+.sc{display:flex;align-items:center;gap:5px}
+.sc input{width:38px;height:34px;text-align:center;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.14);border-radius:9px;font-size:15px;font-weight:600;outline:none}
+.sc input:focus{border-color:var(--gold)}
+.sc b{color:var(--muted);font-size:12px}
+.folga{font-size:13px;color:var(--muted);padding:6px 10px;font-style:italic}
+table.st{width:100%;border-collapse:collapse;font-size:14px}
+.st th{font-size:11.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:600;padding:8px 6px;text-align:center;border-bottom:1px solid var(--line)}
+.st th:nth-child(2){text-align:left}
+.st td{padding:9px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.05)}
+.st td.n{text-align:left}
+.st td.n div{display:flex;align-items:center;gap:8px;font-weight:500}
+.st tr.lead td{background:rgba(233,180,76,.1)}
+.st tr.lead td.n div{color:var(--gold2);font-weight:700}
+.st td.pts{font-weight:700;font-size:16px;color:var(--gold2)}
+.pos{width:26px;height:26px;border-radius:8px;display:inline-grid;place-items:center;font-weight:700;font-size:13px;background:rgba(255,255,255,.06)}
+.lead .pos{background:var(--gold);color:#2a1a05}
+.sticky{position:sticky;top:90px}
+
+/* draw overlay */
+.drawbox{text-align:center;max-width:520px}
+.spin{display:inline-block;animation:spin 1s linear infinite}
+.spin.stop{animation:bounce .6s ease}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bounce{40%{transform:scale(1.2)}}
+.roll{font-family:'Bebas Neue';font-size:34px;letter-spacing:1.5px;min-height:46px;color:var(--gold2);margin:10px 0 8px}
+.pairs{display:flex;flex-direction:column;gap:8px;margin:8px 0 20px;text-align:left}
+.pair{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.25);border:1px solid rgba(233,180,76,.2);animation:slidein .4s ease both}
+.pair span{display:flex;align-items:center;gap:8px;min-width:0;font-weight:500}
+.pair span em{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:normal}
+.pair span.r{flex-direction:row-reverse;text-align:right}
+.pair b{font-family:'Bebas Neue';color:var(--gold);font-size:18px;letter-spacing:1px}
+.pair .fg{color:var(--muted);font-style:italic}
+@keyframes slidein{from{opacity:0;transform:translateX(-20px)}}
+
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:200;width:100%;height:100%}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0d3220;border:1px solid var(--gold);padding:11px 18px;border-radius:12px;z-index:120;font-size:14px;animation:rise .25s;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+@media(max-width:600px){
+  .brand h1{font-size:24px}.thead h2{font-size:30px}.sec-head h2{font-size:28px}
+  .toolbar .tip{margin-left:0;width:100%}
+  .fmt{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="top"><div class="in">
+  <div class="brand" onclick="go('home')" id="brand"></div>
+  <button class="btn ghost sm" onclick="openBackup()">💾 Backup</button>
+</div><div class="diamonds"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+<div class="wrap" id="app"></div>
+<div id="modal-root"></div>
+<canvas id="confetti"></canvas>
+
+<script>
+/* ============ estado ============ */
+const KEY='sinuca-pro-v1';
+const BC=['#f2c12e','#1f4fbf','#d6332a','#5b2a86','#f07c1b','#1e7d3a','#8a1c1c','#111111'];
+let S=load();
+let view={page:'home',tab:'camps',tid:null};
+let NT=null; // rascunho de novo campeonato
+let clipN=0;
+
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Array.isArray(d.players))return d}catch(e){}return{players:[],tournaments:[]}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const uid=()=>Math.random().toString(36).slice(2,10);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=s=>document.querySelector(s);
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const cur=()=>S.tournaments.find(t=>t.id===view.tid);
+const isP=v=>v&&v!=='BYE';
+
+function ball(n,s=26){
+  n=((n-1)%15+15)%15+1;const c=BC[(n-1)%8],st=n>8,id='c'+(clipN++);
+  return `<svg class="ball" width="${s}" height="${s}" viewBox="0 0 40 40">
+  <defs><clipPath id="${id}"><circle cx="20" cy="20" r="19"/></clipPath>
+  <radialGradient id="h${id}" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></radialGradient></defs>
+  <circle cx="20" cy="20" r="19" fill="${st?'#f4efe2':c}"/>
+  ${st?`<rect x="0" y="11" width="40" height="18" fill="${c}" clip-path="url(#${id})"/>`:''}
+  <circle cx="20" cy="20" r="8.3" fill="#fbf8ef"/>
+  <text x="20" y="24" text-anchor="middle" font-size="${n>9?10:11}" font-weight="700" font-family="Outfit,sans-serif" fill="#111">${n}</text>
+  <circle cx="20" cy="20" r="19" fill="url(#h${id})"/></svg>`;
+}
+function pBall(id){const i=S.players.findIndex(p=>p.id===id);return (i<0?0:i)%15+1}
+function tName(t,id){return t.names[id]||'?'}
+function tBall(t,id,s){return ball(t.balls[id]||1,s)}
+
+function toast(msg){const d=document.createElement('div');d.className='toast';d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
+
+/* ============ navegação ============ */
+function go(p,tid){view.page=p;if(tid)view.tid=tid;render();window.scrollTo({top:0})}
+function setTab(t){view.tab=t;render()}
+
+function render(){
+  $('#brand').innerHTML=`<img class="logo" src="icons/icon-192.png" alt=""><div><h1>AMIGOS DO BILHAR</h1><span>Campeonatos de sinuca</span></div>`;
+  const app=$('#app');
+  if(view.page==='tour'&&cur()) app.innerHTML=renderTour(cur());
+  else{view.page='home';app.innerHTML=renderHome()}
+}
+
+/* ============ home ============ */
+function renderHome(){
+  const tabs=`<nav class="tabs">
+    <button class="${view.tab==='camps'?'on':''}" onclick="setTab('camps')">🏆 Campeonatos<span class="count">${S.tournaments.length}</span></button>
+    <button class="${view.tab==='players'?'on':''}" onclick="setTab('players')">🎱 Jogadores<span class="count">${S.players.length}</span></button></nav>`;
+  return tabs+(view.tab==='camps'?renderCamps():renderPlayers());
+}
+function tStatus(t){
+  if(t.format==='ko'){
+    const R=computeKO(t);let tot=0,done=0;
+    R.forEach(r=>r.forEach(m=>{if(isP(m.a)&&isP(m.b)){tot++;if(m.w)done++}}));
+    const ch=koChampion(t,R);return{tot,done,ch};
+  }
+  const ms=t.matches.filter(m=>!m.bye);const done=ms.filter(m=>m.w).length;
+  const ch=done===ms.length&&ms.length?standings(t)[0].id:null;
+  return{tot:ms.length,done,ch};
+}
+function renderCamps(){
+  if(!S.tournaments.length) return `<div class="card empty-hero">
+    <div class="bigball"><img src="icons/icon-192.png" alt="" style="width:130px;height:130px;border-radius:28px;background:#fff"></div><h3>Nenhum campeonato ainda</h3>
+    <p>${S.players.length<2?'Comece cadastrando os jogadores e depois crie seu primeiro campeonato.':'Crie o primeiro campeonato e faça o sorteio dos confrontos.'}</p>
+    ${S.players.length<2?`<button class="btn gold" onclick="setTab('players')">Cadastrar jogadores</button>`:`<button class="btn gold" onclick="openNew()">＋ Novo campeonato</button>`}</div>`;
+  const cards=[...S.tournaments].reverse().map(t=>{
+    const s=tStatus(t),pct=s.tot?Math.round(s.done/s.tot*100):0;
+    return `<div class="card tcard" onclick="go('tour','${t.id}')">
+      <span class="badge ${t.format}">${t.format==='ko'?'⚔️ Mata-mata':'🔁 Pontos corridos'}</span>
+      <h3>${esc(t.name)}</h3>
+      <div class="sub">${t.playerIds.length} jogadores · ${new Date(t.createdAt).toLocaleDateString('pt-BR')}</div>
+      <div class="status">${s.ch?`<span class="champ-mini">🏆 ${esc(tName(t,s.ch))}</span>`:`<span>Em andamento</span>`}<span>${s.done}/${s.tot} jogos</span></div>
+      <div class="bar"><i style="width:${pct}%"></i></div></div>`}).join('');
+  return `<div class="sec-head"><div><h2>Seus campeonatos</h2><div class="sub">Toque em um campeonato para abrir</div></div>
+    <button class="btn gold" onclick="openNew()">＋ Novo campeonato</button></div><div class="grid">${cards}</div>`;
+}
+let bulk=false;
+function renderPlayers(){
+  const list=S.players.map((p,i)=>`<div class="pitem">${ball(i%15+1,30)}<div class="nm">${esc(p.name)}</div>
+    <button class="x" title="Remover" onclick="delPlayer('${p.id}')">×</button></div>`).join('');
+  return `<div class="sec-head"><div><h2>Jogadores</h2><div class="sub">${S.players.length} cadastrado(s)</div></div></div>
+  <div class="card">
+    ${bulk?`<textarea class="inp" id="bulkin" placeholder="Um nome por linha&#10;João&#10;Maria&#10;Pedro"></textarea>
+      <div class="addrow" style="margin-top:10px"><button class="btn gold" onclick="addBulk()">Adicionar todos</button><button class="btn ghost" onclick="bulk=false;render()">Cancelar</button></div>`
+    :`<div class="addrow"><input class="inp" id="pin" placeholder="Nome do jogador" maxlength="40" onkeydown="if(event.key==='Enter')addPlayer()">
+      <button class="btn gold" onclick="addPlayer()">＋ Adicionar</button></div>
+      <div style="margin-top:10px"><button class="link" onclick="bulk=true;render();setTimeout(()=>$('#bulkin').focus(),0)">Adicionar vários de uma vez</button></div>`}
+    ${S.players.length?`<div class="plist">${list}</div>`:`<p class="sub" style="margin-top:16px">Nenhum jogador cadastrado ainda.</p>`}
+  </div>`;
+}
+function addPlayer(){
+  const v=$('#pin').value.trim();if(!v)return;
+  if(S.players.some(p=>p.name.toLowerCase()===v.toLowerCase())){toast('Esse jogador já existe');return}
+  S.players.push({id:uid(),name:v});save();render();setTimeout(()=>$('#pin')&&$('#pin').focus(),0);
+}
+function addBulk(){
+  const names=$('#bulkin').value.split('\n').map(s=>s.trim()).filter(Boolean);let n=0;
+  names.forEach(v=>{if(!S.players.some(p=>p.name.toLowerCase()===v.toLowerCase())){S.players.push({id:uid(),name:v.slice(0,40)});n++}});
+  bulk=false;save();render();toast(`${n} jogador(es) adicionado(s)`);
+}
+function delPlayer(id){
+  const p=S.players.find(x=>x.id===id);
+  askConfirm(`Remover <b>${esc(p.name)}</b> da lista de jogadores?<br><span class="sub">Campeonatos já criados não são afetados.</span>`,()=>{
+    S.players=S.players.filter(x=>x.id!==id);save();render()});
+}
+
+/* ============ modais ============ */
+function openModal(html,cls=''){$('#modal-root').innerHTML=`<div class="ov-bg" onclick="if(event.target===this)closeModal()"><div class="modal ${cls}">${html}</div></div>`}
+function closeModal(){$('#modal-root').innerHTML=''}
+let _yes=null;
+function askConfirm(msg,yes,label='Confirmar'){
+  _yes=yes;openModal(`<h2>Tem certeza?</h2><p style="line-height:1.5">${msg}</p>
+  <div class="actions"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn danger" onclick="closeModal();_yes&&_yes()">${label}</button></div>`);
+}
+
+/* novo campeonato */
+function openNew(){
+  if(S.players.length<2){toast('Cadastre pelo menos 2 jogadores');setTab('players');return}
+  NT={name:'Campeonato de Sinuca',fmt:'ko',sel:new Set(S.players.map(p=>p.id)),pw:3,pl:0,dbl:false,full:true};
+  drawNew();
+}
+function drawNew(){
+  const chips=S.players.map((p,i)=>`<div class="chip ${NT.sel.has(p.id)?'on':''}" onclick="togSel('${p.id}')">${ball(i%15+1,24)}${esc(p.name)}</div>`).join('');
+  const n=NT.sel.size;
+  let info='';
+  if(NT.fmt==='ko'){const m=NT.full?Math.max(1,nextPow2(n)/2):Math.ceil(n/2);info=`${m} confronto(s) na 1ª fase${2*m-n>0?` · ${2*m-n} folga(s)`:''}`}
+  else{const k=n%2?n:n-1;info=`${n*(n-1)/2*(NT.dbl?2:1)} jogos em ${k*(NT.dbl?2:1)} rodada(s)`}
+  openModal(`<h2>Novo campeonato</h2>
+  <label>Nome</label><input class="inp" id="tn" value="${esc(NT.name)}" oninput="NT.name=this.value" maxlength="60">
+  <label>Formato</label>
+  <div class="fmt">
+    <div class="fmtc ${NT.fmt==='ko'?'on':''}" onclick="NT.fmt='ko';drawNew()"><span class="ic">⚔️</span><b>Mata-mata</b><small>Quem perde está fora. Chaves editáveis.</small></div>
+    <div class="fmtc ${NT.fmt==='rr'?'on':''}" onclick="NT.fmt='rr';drawNew()"><span class="ic">🔁</span><b>Pontos corridos</b><small>Todos jogam contra todos.</small></div>
+  </div>
+  <div class="opts">${NT.fmt==='ko'
+    ?`<label class="opt"><input type="checkbox" ${NT.full?'checked':''} onchange="NT.full=this.checked;drawNew()"> Chave completa (2, 4, 8, 16…)</label>`
+    :`<span class="opt">Vitória <input type="number" min="0" value="${NT.pw}" onchange="NT.pw=+this.value||0;drawNew()"> pts</span>
+      <span class="opt">Derrota <input type="number" min="0" value="${NT.pl}" onchange="NT.pl=+this.value||0;drawNew()"> pts</span>
+      <label class="opt"><input type="checkbox" ${NT.dbl?'checked':''} onchange="NT.dbl=this.checked;drawNew()"> Ida e volta</label>`}</div>
+  <label style="display:flex;justify-content:space-between;align-items:center">Jogadores (${n})
+    <span><button class="link" onclick="NT.sel=new Set(S.players.map(p=>p.id));drawNew()">todos</button> · <button class="link" onclick="NT.sel=new Set();drawNew()">nenhum</button></span></label>
+  <div class="pick">${chips}</div>
+  <div class="addrow" style="margin-top:10px"><input class="inp" id="qa" placeholder="Adicionar jogador rápido" onkeydown="if(event.key==='Enter')quickAdd()"><button class="btn ghost" onclick="quickAdd()">＋</button></div>
+  <p class="hint">${n>=2?info:'Selecione pelo menos 2 jogadores'}</p>
+  <div class="actions"><button class="btn ghost" onclick="closeModal()">Cancelar</button>
+  <button class="btn gold" ${n<2?'disabled':''} onclick="createT()">🎲 Criar e sortear</button></div>`);
+}
+function togSel(id){NT.sel.has(id)?NT.sel.delete(id):NT.sel.add(id);drawNew()}
+function quickAdd(){
+  const v=$('#qa').value.trim();if(!v)return;
+  let p=S.players.find(x=>x.name.toLowerCase()===v.toLowerCase());
+  if(!p){p={id:uid(),name:v.slice(0,40)};S.players.push(p);save()}
+  NT.sel.add(p.id);drawNew();setTimeout(()=>$('#qa').focus(),0);
+}
+function nextPow2(n){let p=1;while(p<n)p*=2;return p}
+function createT(){
+  const ids=S.players.filter(p=>NT.sel.has(p.id)).map(p=>p.id);
+  if(ids.length<2)return;
+  const t={id:uid(),name:NT.name.trim()||'Campeonato de Sinuca',format:NT.fmt,createdAt:Date.now(),playerIds:ids,
+    names:{},balls:{},pw:NT.pw,pl:NT.pl,dbl:NT.dbl,full:NT.full,r0:[],win:{},over:{},matches:[],champSeen:null};
+  ids.forEach(id=>{t.names[id]=S.players.find(p=>p.id===id).name;t.balls[id]=pBall(id)});
+  doDraw(t);S.tournaments.push(t);save();closeModal();go('tour',t.id);showDraw(t);
+}
+
+/* ============ sorteio ============ */
+function doDraw(t){
+  const ids=shuffle(t.playerIds);
+  t.win={};t.over={};t.champSeen=null;
+  if(t.format==='ko'){
+    const n=ids.length,m=t.full?Math.max(1,nextPow2(n)/2):Math.ceil(n/2),byes=2*m-n;
+    const byeSet=new Set();for(let k=0;k<byes;k++)byeSet.add(Math.floor((k+.5)*m/byes));
+    t.r0=[];let q=[...ids];
+    for(let i=0;i<m;i++)t.r0.push([q.shift()||null,null]);
+    for(let i=0;i<m;i++)if(!byeSet.has(i)&&q.length)t.r0[i][1]=q.shift();
+    for(let i=0;i<m&&q.length;i++)if(!t.r0[i][1])t.r0[i][1]=q.shift();
+  }else t.matches=schedule(ids,t.dbl);
+}
+function redraw(){
+  const t=cur();
+  askConfirm('Refazer o sorteio vai <b>apagar todos os resultados</b> deste campeonato.',()=>{doDraw(t);save();render();showDraw(t)},'Sortear de novo');
+}
+let rollTimer=null;
+function showDraw(t){
+  const pairs=t.format==='ko'?t.r0.map(m=>[m[0],m[1]]):t.matches.filter(m=>m.round===0).map(m=>[m.a,m.b]);
+  openModal(`<div class="drawbox"><div class="spin" id="sball">${ball(8,72)}</div>
+    <div class="roll" id="roll">Sorteando…</div><div class="pairs" id="pairs"></div>
+    <button class="btn gold" id="drawok" style="visibility:hidden" onclick="closeModal()">Ver ${t.format==='ko'?'chaveamento':'rodadas'} →</button></div>`);
+  const names=t.playerIds.map(id=>t.names[id]);let k=0;
+  clearInterval(rollTimer);
+  rollTimer=setInterval(()=>{const r=$('#roll');if(!r){clearInterval(rollTimer);return}r.textContent=names[k++%names.length]},70);
+  setTimeout(()=>{
+    clearInterval(rollTimer);const r=$('#roll');if(!r)return;
+    r.textContent=t.format==='ko'?'Confrontos da 1ª fase':'1ª rodada';$('#sball').className='spin stop';
+    const box=$('#pairs');
+    pairs.forEach(([a,b],i)=>{
+      const side=(id,cls)=>id?`<span class="${cls}">${tBall(t,id,24)}<em>${esc(tName(t,id))}</em></span>`:`<span class="${cls} fg">folga</span>`;
+      box.insertAdjacentHTML('beforeend',`<div class="pair" style="animation-delay:${i*.18}s">${side(a,'')}<b>VS</b>${side(b,'r')}</div>`);
+    });
+    setTimeout(()=>{const b=$('#drawok');if(b)b.style.visibility='visible'},pairs.length*180+200);
+  },1500);
+}
+
+/* ============ página do campeonato ============ */
+function renderTour(t){
+  const st=tStatus(t);
+  setTimeout(()=>checkChamp(t,st.ch),50);
+  const head=`<div class="thead"><button class="back" onclick="go('home')">←</button>
+    <div><span class="badge ${t.format}">${t.format==='ko'?'⚔️ Mata-mata':'🔁 Pontos corridos'}</span><h2 style="margin-top:6px">${esc(t.name)}</h2></div>
+    <div class="sp"></div>
+    <button class="btn ghost sm" onclick="redraw()">🎲 Refazer sorteio</button>
+    <button class="btn danger sm" onclick="delTour()">Excluir</button></div>`;
+  const champ=st.ch?`<div class="champ"><div class="tro">🏆</div>${tBall(t,st.ch,54)}<div><small>Campeão</small><b>${esc(tName(t,st.ch))}</b></div></div>`:'';
+  return head+champ+(t.format==='ko'?renderKO(t):renderRR(t));
+}
+function delTour(){
+  const t=cur();askConfirm(`Excluir o campeonato <b>${esc(t.name)}</b>? Isso não pode ser desfeito.`,()=>{
+    S.tournaments=S.tournaments.filter(x=>x.id!==t.id);save();go('home')},'Excluir');
+}
+function checkChamp(t,ch){
+  if(ch&&t.champSeen!==ch){t.champSeen=ch;save();confetti()}
+  if(!ch&&t.champSeen){t.champSeen=null;save()}
+}
+
+/* ============ mata-mata ============ */
+function koShape(n0){const L=[n0];let n=n0;while(n>1){n=Math.ceil(n/2);L.push(n)}return L}
+function computeKO(t){
+  const L=koShape(t.r0.length),R=[];
+  for(let r=0;r<L.length;r++){
+    if(r===0)R[0]=t.r0.map(m=>({a:m[0]||'BYE',b:m[1]||'BYE',ae:!m[0],be:!m[1]}));
+    else{
+      R[r]=[];
+      for(let i=0;i<L[r];i++){
+        const f=[2*i,2*i+1].map(j=>j<L[r-1]?R[r-1][j].w:'BYE');
+        const ka=`${r}-${i}-0`,kb=`${r}-${i}-1`;
+        R[r][i]={a:t.over[ka]||f[0],b:t.over[kb]||f[1],ao:!!t.over[ka],bo:!!t.over[kb]};
+      }
+    }
+    R[r].forEach((m,i)=>{
+      const k=r+'-'+i;let w=null;
+      if(m.a==='BYE'&&m.b==='BYE')w='BYE';
+      else if(m.a==='BYE')w=m.b;
+      else if(m.b==='BYE')w=m.a;
+      else if(m.a&&m.b){const s=t.win[k];if(s&&(s===m.a||s===m.b))w=s}
+      m.w=w;m.key=k;
+    });
+  }
+  return R;
+}
+function koChampion(t,R){const f=R[R.length-1][0];return isP(f.w)?f.w:null}
+function roundName(r,total){
+  const d=total-1-r;
+  return ['Final','Semifinal','Quartas de final','Oitavas de final'][d]||`${r+1}ª fase`;
+}
+function renderKO(t){
+  const R=computeKO(t),L=R.map(r=>r.length);
+  const placed=new Set(t.r0.flat().filter(Boolean));
+  const pool=t.playerIds.filter(id=>!placed.has(id));
+  const W=228,G=58,U=100,CH=80,TOP=50;
+  // centros
+  const C=[];C[0]=L[0]?[...Array(L[0])].map((_,i)=>i*U+U/2):[];
+  for(let r=1;r<L.length;r++){C[r]=[];for(let i=0;i<L[r];i++){const a=C[r-1][2*i],b=C[r-1][2*i+1];C[r][i]=b===undefined?a:(a+b)/2}}
+  const width=L.length*(W+G)-G,height=L[0]*U+TOP;
+  let paths='';
+  for(let r=1;r<L.length;r++)for(let i=0;i<L[r];i++){
+    const x1=(r-1)*(W+G)+W,x2=r*(W+G),xm=x1+G/2,y2=TOP+C[r][i];
+    [2*i,2*i+1].forEach(j=>{if(j<L[r-1]){const y1=TOP+C[r-1][j];const lit=isP(R[r-1][j].w);
+      paths+=`<path d="M${x1} ${y1} H${xm} V${y2} H${x2}" fill="none" stroke="${lit?'#e9b44c':'rgba(255,255,255,.18)'}" stroke-width="${lit?2:1.5}" stroke-linejoin="round"/>`}});
+  }
+  let labels='',cards='',num=0;
+  R.forEach((round,r)=>{
+    const decided=round.filter(m=>isP(m.a)&&isP(m.b)&&m.w).length,tot=round.filter(m=>isP(m.a)&&isP(m.b)).length;
+    labels+=`<div class="rlabel" style="left:${r*(W+G)}px;width:${W}px">${roundName(r,L.length)}<small>${tot?`${decided}/${tot} jogos`:'—'}</small></div>`;
+    round.forEach((m,i)=>{
+      num++;
+      const done=isP(m.w)&&isP(m.a)&&isP(m.b);
+      cards+=`<div class="match ${done?'done':''} ${r===L.length-1?'final':''}" style="left:${r*(W+G)}px;top:${TOP+C[r][i]-CH/2}px;width:${W}px">
+        <div class="mnum">J${num}</div>${slotHTML(t,m,r,i,0)}${slotHTML(t,m,r,i,1)}</div>`;
+    });
+  });
+  return `<div class="toolbar">
+    <button class="btn ghost sm" onclick="addChave()">＋ Chave</button>
+    <button class="btn ghost sm" onclick="remChave()" ${t.r0.length<=1?'disabled':''}>－ Chave</button>
+    <span class="sub">${t.r0.length} chave(s) na 1ª fase</span>
+    <span class="tip">👆 Toque no nome para marcar o vencedor · ✋ arraste para mover</span></div>
+  <div class="pool" id="pool" data-pool><span class="lbl">Fora da chave</span>${pool.length?pool.map(id=>`<div class="chip" data-drag data-pid="${id}" data-src="pool">${tBall(t,id,22)}${esc(tName(t,id))}</div>`).join(''):'<span class="sub" style="font-size:13px">Arraste um nome para cá para tirá-lo da 1ª fase</span>'}</div>
+  <div class="bracket-scroll"><div class="bracket" style="width:${width}px;height:${height}px">
+    <svg width="${width}" height="${height}" style="position:absolute;inset:0">${paths}</svg>${labels}${cards}</div></div>`;
+}
+function slotHTML(t,m,r,i,s){
+  const v=s?m.b:m.a,empty=r===0&&(s?m.be:m.ae),ov=s?m.bo:m.ao;
+  const attrs=`data-drop data-r="${r}" data-i="${i}" data-s="${s}"`;
+  if(isP(v)){
+    const full=isP(m.a)&&isP(m.b),win=full&&m.w===v,lose=full&&m.w&&m.w!==v;
+    return `<div class="slot ${win?'win':''} ${lose?'lose':''}" ${attrs}>
+      <div class="pn" data-drag data-pid="${v}" data-src="${r}-${i}-${s}">${tBall(t,v,22)}<span>${esc(tName(t,v))}</span></div>
+      ${ov?`<span class="ovm" title="Colocado manualmente — clique para desfazer" onclick="clearOver('${r}-${i}-${s}')">✎</span>`:''}
+      ${win?'<span class="ck">✓</span>':''}</div>`;
+  }
+  if(empty)return `<div class="slot empty" ${attrs}>vazio — arraste um jogador</div>`;
+  if(v==='BYE')return `<div class="slot bye" ${attrs}>folga</div>`;
+  return `<div class="slot pend" ${attrs}>a definir</div>`;
+}
+function cleanKeys(t){
+  const L=koShape(t.r0.length);
+  for(const o of [t.win,t.over])Object.keys(o).forEach(k=>{const [r,i]=k.split('-').map(Number);if(r>=L.length||i>=L[r])delete o[k]});
+}
+function addChave(){const t=cur();t.r0.push([null,null]);cleanKeys(t);save();render()}
+function remChave(){const t=cur();if(t.r0.length<=1)return;t.r0.pop();cleanKeys(t);save();render()}
+function clearOver(k){const t=cur();delete t.over[k];save();render()}
+function clickName(pid,src){
+  const t=cur();if(!t)return;
+  if(t.format==='ko'){
+    if(src==='pool')return;
+    const [r,i]=src.split('-').map(Number);const m=computeKO(t)[r][i];
+    if(!(isP(m.a)&&isP(m.b))){toast('Esse jogador avança direto (folga)');return}
+    const k=r+'-'+i;if(t.win[k]===pid)delete t.win[k];else t.win[k]=pid;
+    save();render();
+  }
+}
+function dropKO(pid,src,tgt){
+  const t=cur();
+  if(tgt==='pool'){
+    if(src&&src!=='pool'){const [r,i,s]=src.split('-').map(Number);if(r===0)t.r0[i][s]=null;else delete t.over[src]}
+  }else{
+    const {r,i,s}=tgt;
+    if(r===0){
+      const prev=t.r0[i][s];if(prev===pid)return;
+      let from=null;t.r0.forEach((m,mi)=>m.forEach((x,si)=>{if(x===pid)from=[mi,si]}));
+      if(from)t.r0[from[0]][from[1]]=prev;
+      t.r0[i][s]=pid;
+      delete t.win['0-'+i];if(from)delete t.win['0-'+from[0]];
+    }else{
+      const R=computeKO(t),fi=2*i+s,f=R[r-1][fi],k=`${r}-${i}-${s}`;
+      if(f&&(f.a===pid||f.b===pid)&&isP(f.a)&&isP(f.b)){t.win[(r-1)+'-'+fi]=pid;delete t.over[k]}
+      else if(f&&f.w===pid){delete t.over[k]}
+      else t.over[k]=pid;
+    }
+  }
+  save();render();
+}
+
+/* ============ pontos corridos ============ */
+function schedule(ids,dbl){
+  const a=[...ids];if(a.length%2)a.push(null);
+  const n=a.length,rounds=[];let arr=a.slice();
+  for(let r=0;r<n-1;r++){
+    const ms=[];for(let i=0;i<n/2;i++){let x=arr[i],y=arr[n-1-i];if(r%2&&i===0)[x,y]=[y,x];ms.push([x,y])}
+    rounds.push(ms);arr=[arr[0],arr[n-1],...arr.slice(1,n-1)];
+  }
+  let all=rounds;if(dbl)all=all.concat(rounds.map(ms=>ms.map(([x,y])=>[y,x])));
+  const out=[];
+  all.forEach((ms,ri)=>ms.forEach(([x,y])=>{
+    if(x===null||y===null)out.push({id:uid(),round:ri,a:x??y,b:null,bye:true});
+    else out.push({id:uid(),round:ri,a:x,b:y,sa:'',sb:'',w:null});
+  }));
+  return out;
+}
+function standings(t){
+  const st={};t.playerIds.forEach(id=>st[id]={id,P:0,J:0,V:0,D:0,FP:0,FC:0});
+  t.matches.forEach(m=>{
+    if(m.bye||!m.w)return;const A=st[m.a],B=st[m.b],wa=m.w===m.a,W=wa?A:B,Lo=wa?B:A;
+    A.J++;B.J++;W.V++;Lo.D++;W.P+=t.pw;Lo.P+=t.pl||0;
+    const sa=+m.sa||0,sb=+m.sb||0;A.FP+=sa;A.FC+=sb;B.FP+=sb;B.FC+=sa;
+  });
+  return Object.values(st).sort((x,y)=>y.P-x.P||y.V-x.V||(y.FP-y.FC)-(x.FP-x.FC)||y.FP-x.FP||tName(t,x.id).localeCompare(tName(t,y.id)));
+}
+function renderRR(t){
+  const byR={};t.matches.forEach(m=>(byR[m.round]=byR[m.round]||[]).push(m));
+  const rounds=Object.keys(byR).sort((a,b)=>a-b).map(r=>{
+    const ms=byR[r],real=ms.filter(m=>!m.bye),done=real.filter(m=>m.w).length;
+    return `<div class="round"><h4>${+r+1}ª Rodada <small>${done}/${real.length} jogos</small></h4>${ms.map(m=>{
+      if(m.bye)return `<div class="folga">${tBall(t,m.a,18)} ${esc(tName(t,m.a))} folga nesta rodada</div>`;
+      const cls=id=>m.w?(m.w===id?'win':'lose'):'';
+      return `<div class="rm ${m.w?'done':''}">
+        <div class="rp ${cls(m.a)}" onclick="rrWin('${m.id}','${m.a}')">${tBall(t,m.a,24)}<span>${esc(tName(t,m.a))}</span></div>
+        <div class="sc"><input inputmode="numeric" value="${esc(m.sa)}" placeholder="-" onchange="rrScore('${m.id}','a',this.value)"><b>×</b><input inputmode="numeric" value="${esc(m.sb)}" placeholder="-" onchange="rrScore('${m.id}','b',this.value)"></div>
+        <div class="rp r ${cls(m.b)}" onclick="rrWin('${m.id}','${m.b}')">${tBall(t,m.b,24)}<span>${esc(tName(t,m.b))}</span></div></div>`}).join('')}</div>`;
+  }).join('');
+  const sd=standings(t),anyPlayed=t.matches.some(m=>m.w);
+  const rows=sd.map((s,i)=>`<tr class="${i===0&&anyPlayed?'lead':''}"><td><span class="pos">${i+1}</span></td>
+    <td class="n"><div>${tBall(t,s.id,22)}${esc(tName(t,s.id))}</div></td>
+    <td class="pts">${s.P}</td><td>${s.J}</td><td>${s.V}</td><td>${s.D}</td><td>${s.FP-s.FC>0?'+':''}${s.FP-s.FC}</td></tr>`).join('');
+  return `<div class="toolbar"><span class="tip" style="margin-left:0">👆 Toque no nome de quem venceu, ou digite o placar (opcional) · Vitória = ${t.pw} pts${t.pl?` · Derrota = ${t.pl} pts`:''}</span></div>
+  <div class="rr"><div class="card">${rounds}</div>
+  <div class="card sticky"><h4 style="font-family:'Bebas Neue';font-size:24px;letter-spacing:1.3px;margin-bottom:8px">Classificação</h4>
+  <table class="st"><thead><tr><th>#</th><th>Jogador</th><th>P</th><th>J</th><th>V</th><th>D</th><th>SP</th></tr></thead><tbody>${rows}</tbody></table>
+  <p class="hint" style="margin-top:10px">P pontos · J jogos · V vitórias · D derrotas · SP saldo de partidas (placar)</p></div></div>`;
+}
+function rrWin(mid,pid){const t=cur(),m=t.matches.find(x=>x.id===mid);m.w=m.w===pid?null:pid;save();render()}
+function rrScore(mid,side,v){
+  const t=cur(),m=t.matches.find(x=>x.id===mid);v=v.replace(/\D/g,'').slice(0,3);m['s'+side]=v;
+  if(m.sa!==''&&m.sb!==''&&+m.sa!==+m.sb)m.w=+m.sa>+m.sb?m.a:m.b;
+  save();render();
+}
+
+/* ============ arrastar (mouse e toque) ============ */
+let drag=null;
+document.addEventListener('pointerdown',e=>{
+  if(e.button>0)return;const el=e.target.closest('[data-drag]');if(!el)return;
+  drag={el,pid:el.dataset.pid,src:el.dataset.src,x:e.clientX,y:e.clientY,moved:false,ghost:null,hover:null};
+});
+document.addEventListener('pointermove',e=>{
+  if(!drag)return;
+  if(!drag.moved){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<7)return;
+    drag.moved=true;const g=document.createElement('div');g.className='dragghost';
+    const t=cur();g.innerHTML=tBall(t,drag.pid,22)+esc(tName(t,drag.pid));document.body.appendChild(g);drag.ghost=g;drag.el.classList.add('dragging')}
+  e.preventDefault();
+  drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px';
+  const tg=target(e.clientX,e.clientY);
+  if(drag.hover&&drag.hover!==tg)drag.hover.classList.remove('over');
+  if(tg){tg.classList.add('over')}drag.hover=tg;
+},{passive:false});
+function target(x,y){const el=document.elementFromPoint(x,y);if(!el)return null;return el.closest('[data-drop]')||el.closest('[data-pool]')}
+function endDrag(e,cancel){
+  if(!drag)return;const d=drag;drag=null;
+  if(d.ghost)d.ghost.remove();d.el.classList.remove('dragging');if(d.hover)d.hover.classList.remove('over');
+  if(cancel)return;
+  if(!d.moved){clickName(d.pid,d.src);return}
+  const tg=target(e.clientX,e.clientY);if(!tg)return;
+  if(tg.hasAttribute('data-pool'))dropKO(d.pid,d.src,'pool');
+  else dropKO(d.pid,d.src,{r:+tg.dataset.r,i:+tg.dataset.i,s:+tg.dataset.s});
+}
+document.addEventListener('pointerup',e=>endDrag(e,false));
+document.addEventListener('pointercancel',e=>endDrag(e,true));
+
+/* ============ backup ============ */
+function openBackup(){
+  openModal(`<h2>Backup</h2><p class="sub">Os dados ficam salvos neste navegador. Para levar para outro aparelho, copie o código abaixo e cole lá em "Restaurar".</p>
+  <label>Seu backup</label><textarea class="inp" id="bk" readonly>${esc(JSON.stringify(S))}</textarea>
+  <div class="actions" style="justify-content:flex-start;margin-top:10px"><button class="btn gold sm" onclick="copyBk()">📋 Copiar</button></div>
+  <label>Restaurar de um backup</label><textarea class="inp" id="rs" placeholder="Cole aqui o código de backup"></textarea>
+  <div class="actions"><button class="btn ghost" onclick="closeModal()">Fechar</button><button class="btn danger" onclick="restore()">Restaurar</button></div>`);
+}
+async function copyBk(){try{await navigator.clipboard.writeText($('#bk').value);toast('Backup copiado!')}catch(e){$('#bk').select();toast('Selecione e copie o texto')}}
+function restore(){
+  try{const d=JSON.parse($('#rs').value);if(!Array.isArray(d.players)||!Array.isArray(d.tournaments))throw 0;
+    S=d;save();closeModal();go('home');toast('Backup restaurado!')}catch(e){toast('Código de backup inválido')}
+}
+
+/* ============ confete ============ */
+function confetti(){
+  const c=$('#confetti'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+  const cols=['#e9b44c','#f7d48a','#f4efe2','#d6332a','#1f4fbf','#1e7d3a','#f07c1b'];
+  const P=[...Array(160)].map(()=>({x:c.width/2,y:c.height/3,vx:(Math.random()-.5)*16,vy:Math.random()*-14-4,s:Math.random()*7+4,c:cols[Math.random()*cols.length|0],r:Math.random()*6,vr:(Math.random()-.5)*.3}));
+  let f=0;(function tick(){x.clearRect(0,0,c.width,c.height);
+    P.forEach(p=>{p.vy+=.35;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);x.restore()});
+    if(++f<170)requestAnimationFrame(tick);else x.clearRect(0,0,c.width,c.height)})();
+}
+
+render();
+if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+</script>
+</body>
+</html>
