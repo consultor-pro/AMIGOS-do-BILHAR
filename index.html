@@ -293,6 +293,11 @@ a.x{text-decoration:none;font-size:14px}
   #print .w{font-weight:700}
   #print .foot{margin-top:18px;text-align:center;color:#777;font-size:10px}
 }
+.bkbox{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px 16px;margin-top:12px;border-radius:14px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08)}
+.bkbox b{display:block;font-size:16px;margin-bottom:2px}
+.bkbox .sub{font-size:13px}
+details.adv{margin-top:16px;font-size:14px}
+details.adv summary{cursor:pointer;color:var(--muted);font-size:13px}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:200;width:100%;height:100%}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0d3220;border:1px solid var(--gold);padding:11px 18px;border-radius:12px;z-index:120;font-size:14px;animation:rise .25s;box-shadow:0 10px 30px rgba(0,0,0,.5)}
 @media(max-width:600px){
@@ -1006,16 +1011,70 @@ document.addEventListener('pointercancel',e=>endDrag(e,true));
 
 /* ============ backup ============ */
 function openBackup(){
-  openModal(`<h2>Backup</h2><p class="sub">Os dados ficam salvos neste navegador. Para levar para outro aparelho, copie o código abaixo e cole lá em "Restaurar".</p>
-  <label>Seu backup</label><textarea class="inp" id="bk" readonly>${esc(JSON.stringify(S))}</textarea>
-  <div class="actions" style="justify-content:flex-start;margin-top:10px"><button class="btn gold sm" onclick="copyBk()">📋 Copiar</button></div>
-  <label>Restaurar de um backup</label><textarea class="inp" id="rs" placeholder="Cole aqui o código de backup"></textarea>
-  <div class="actions"><button class="btn ghost" onclick="closeModal()">Fechar</button><button class="btn danger" onclick="restore()">Restaurar</button></div>`);
+  const n=S.players.length,c=S.tournaments.length;
+  openModal(`<h2>Backup</h2>
+  <p class="sub">Os dados ficam salvos só neste aparelho. Faça um backup em arquivo para não perder nada ou para levar para outro celular ou computador.</p>
+  <div class="bkbox">
+    <div><b>💾 Fazer backup</b><span class="sub">Baixa um arquivo .json com ${n} jogador(es) e ${c} campeonato(s).</span></div>
+    <button class="btn gold" onclick="downloadBk()">⬇️ Baixar arquivo</button>
+  </div>
+  <div class="bkbox">
+    <div><b>📂 Importar backup</b><span class="sub">Escolha um arquivo .json feito por este app.</span></div>
+    <label class="btn ghost" style="margin:0;text-transform:none;letter-spacing:0;font-size:15px;color:var(--cream)">📂 Escolher arquivo<input type="file" accept=".json,application/json" style="display:none" onchange="importFile(this)"></label>
+  </div>
+  <details class="adv"><summary>Opção avançada: copiar e colar o código</summary>
+    <label>Seu backup</label><textarea class="inp" id="bk" readonly>${esc(JSON.stringify(S))}</textarea>
+    <div class="actions" style="justify-content:flex-start;margin-top:10px"><button class="btn ghost sm" onclick="copyBk()">📋 Copiar código</button></div>
+    <label>Restaurar a partir do código</label><textarea class="inp" id="rs" placeholder="Cole aqui o código de backup"></textarea>
+    <div class="actions" style="justify-content:flex-start;margin-top:10px"><button class="btn ghost sm" onclick="restoreText()">Importar código</button></div>
+  </details>
+  <div class="actions"><button class="btn ghost" onclick="closeModal()">Fechar</button></div>`);
 }
-async function copyBk(){try{await navigator.clipboard.writeText($('#bk').value);toast('Backup copiado!')}catch(e){$('#bk').select();toast('Selecione e copie o texto')}}
-function restore(){
-  try{const d=JSON.parse($('#rs').value);if(!Array.isArray(d.players)||!Array.isArray(d.tournaments))throw 0;
-    S=d;save();closeModal();go('home');toast('Backup restaurado!')}catch(e){toast('Código de backup inválido')}
+function downloadBk(){
+  const d=new Date(),p=x=>String(x).padStart(2,'0');
+  const name=`amigos-do-bilhar-backup-${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}h${p(d.getMinutes())}.json`;
+  const data={app:'amigos-do-bilhar',version:3,exportedAt:d.toISOString(),...S};
+  const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),2000);toast('Backup baixado: '+name);
+}
+async function copyBk(){try{await navigator.clipboard.writeText($('#bk').value);toast('Código copiado!')}catch(e){$('#bk').select();toast('Selecione e copie o texto')}}
+function parseBk(txt){
+  const d=JSON.parse(txt);
+  if(!d||!Array.isArray(d.players)||!Array.isArray(d.tournaments))throw new Error('formato');
+  return{players:d.players,tournaments:d.tournaments};
+}
+let pendingBk=null;
+function importFile(inp){
+  const f=inp.files&&inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{askImport(parseBk(r.result),f.name)}catch(e){toast('Esse arquivo não é um backup válido do app')}};
+  r.onerror=()=>toast('Não foi possível ler o arquivo');
+  r.readAsText(f);
+}
+function restoreText(){try{askImport(parseBk($('#rs').value),'código colado')}catch(e){toast('Código de backup inválido')}}
+function askImport(d,src){
+  pendingBk=d;
+  const newP=d.players.filter(p=>!S.players.some(x=>x.id===p.id)).length,newT=d.tournaments.filter(t=>!S.tournaments.some(x=>x.id===t.id)).length;
+  openModal(`<h2>Importar backup</h2>
+  <p class="sub" style="margin-bottom:14px">${esc(src)} — <b>${d.players.length}</b> jogador(es) e <b>${d.tournaments.length}</b> campeonato(s).</p>
+  <div class="fmt">
+    <div class="fmtc" onclick="applyImport('merge')"><span class="ic">➕</span><b>Juntar</b><small>Mantém o que já existe aqui e acrescenta o que é novo (${newP} jogador(es), ${newT} campeonato(s)).</small></div>
+    <div class="fmtc" onclick="applyImport('replace')"><span class="ic">♻️</span><b>Substituir tudo</b><small>Apaga os dados deste aparelho e coloca os do backup no lugar.</small></div>
+  </div>
+  <div class="actions"><button class="btn ghost" onclick="openBackup()">Voltar</button></div>`);
+}
+function applyImport(mode){
+  const d=pendingBk;if(!d)return;
+  if(mode==='replace'){
+    askConfirm('Substituir <b>todos os dados deste aparelho</b> pelos do backup?<br><span class="sub">Dica: baixe um backup atual antes, por segurança.</span>',()=>{
+      S={players:d.players,tournaments:d.tournaments};hist=[];save();pendingBk=null;go('home');toast('Backup restaurado!')},'Substituir');
+    return;
+  }
+  let np=0,nt=0;
+  d.players.forEach(p=>{if(!S.players.some(x=>x.id===p.id)){S.players.push(p);np++}});
+  d.tournaments.forEach(t=>{if(!S.tournaments.some(x=>x.id===t.id)){S.tournaments.push(t);nt++}});
+  save();pendingBk=null;closeModal();go('home');toast(`Importado: ${np} jogador(es) e ${nt} campeonato(s) novos`);
 }
 
 /* ============ confete ============ */
