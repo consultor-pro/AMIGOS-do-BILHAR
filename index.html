@@ -184,8 +184,8 @@ textarea.inp{min-height:110px;resize:vertical;width:100%}
   box-shadow:0 14px 30px rgba(0,0,0,.6);display:flex;align-items:center;gap:7px;font-weight:600;font-size:14px}
 
 /* round robin */
-.rr{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;align-items:start}
-@media(max-width:900px){.rr{grid-template-columns:1fr}}
+.rrgrid{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;align-items:start}
+@media(max-width:900px){.rrgrid{grid-template-columns:1fr}}
 .round h4{font-family:'Bebas Neue';font-size:22px;letter-spacing:1.3px;color:var(--gold2);margin:4px 0 10px;display:flex;justify-content:space-between;align-items:center}
 .round h4 small{font-family:'Outfit';font-size:12px;color:var(--muted);letter-spacing:0}
 .round+.round{margin-top:20px}
@@ -231,6 +231,68 @@ table.st{width:100%;border-collapse:collapse;font-size:14px}
 .pair .fg{color:var(--muted);font-style:italic}
 @keyframes slidein{from{opacity:0;transform:translateX(-20px)}}
 
+/* v2: info, empate, edição */
+.info{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:rgba(233,180,76,.22);color:var(--gold2);font-size:10.5px;font-weight:700;font-style:normal;margin-left:4px;cursor:pointer;vertical-align:middle;font-family:Georgia,serif;text-transform:none;letter-spacing:0;user-select:none}
+.info:hover{background:var(--gold);color:#2a1a05}
+#tip{position:fixed;z-index:150;max-width:250px;background:#0b2a1b;border:1px solid var(--gold);border-radius:10px;padding:9px 12px;font-size:13px;line-height:1.45;box-shadow:0 10px 30px rgba(0,0,0,.6);animation:fade .15s;pointer-events:none;color:var(--cream)}
+#tip b{color:var(--gold2)}
+.rm{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto}
+.rrgrid>*{min-width:0}
+@media(max-width:600px){.rrgrid .card{padding:14px}}
+.drawbtn{padding:7px 10px;border-radius:9px;font-size:12.5px;font-weight:600;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--muted);transition:.15s}
+.drawbtn:hover{background:rgba(255,255,255,.12)}
+.drawbtn.on{background:rgba(120,170,255,.22);border-color:rgba(120,170,255,.55);color:#d6e5ff}
+.rp.draw{background:rgba(120,170,255,.12);color:#d6e5ff}
+.edit{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:var(--muted);font-size:15px}
+.edit:hover{background:rgba(255,255,255,.09);color:var(--cream)}
+.wbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wbtn{display:flex;align-items:center;gap:10px;padding:14px;border-radius:14px;background:rgba(0,0,0,.25);border:1.5px solid rgba(255,255,255,.12);font-weight:600;font-size:15px;text-align:left;min-width:0;transition:.15s}
+.wbtn:hover{border-color:rgba(233,180,76,.5)}
+.wbtn.on{border-color:var(--gold);background:rgba(233,180,76,.18);color:var(--gold2)}
+.wbtn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+select.inp{cursor:pointer}
+select.inp option{background:#0b2b1c;color:var(--cream)}
+.match{cursor:pointer}
+.match:hover{border-color:rgba(233,180,76,.6)}
+.mnum{cursor:help}
+.tplist{display:flex;flex-wrap:wrap;gap:8px}
+.chip .x{width:22px;height:22px;font-size:16px}
+.tie{padding:14px 18px;margin-bottom:18px;border-radius:16px;background:rgba(120,170,255,.1);border:1px solid rgba(120,170,255,.35);color:#d6e5ff}
+@media(max-width:600px){.rp{padding:6px 4px;font-size:14px;gap:6px}.drawbtn{padding:7px 7px;font-size:12px}.wbtns{grid-template-columns:1fr}}
+/* v3: telefone, premiação, impressão */
+.pitem .nm small{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:1px}
+.pitem .nm small.nophone{opacity:.55;font-style:italic}
+a.x{text-decoration:none;font-size:14px}
+.prizes{display:grid;gap:14px}
+.prize.pdone{border-color:rgba(120,200,140,.45);background:rgba(120,200,140,.06)}
+.prh{display:grid;grid-template-columns:minmax(150px,1fr) minmax(180px,1.6fr) auto auto;gap:10px;align-items:center}
+.prh .pl{font-weight:700;color:var(--gold2)}
+@media(max-width:700px){.prh{grid-template-columns:1fr auto}.prh .pl{grid-column:1/3}.prh .inp:not(.pl){grid-column:1/3}}
+.pws{display:grid;gap:8px}
+.pwin{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.07)}
+.pwin b{font-size:16px}
+.pact{display:flex;gap:8px;margin-left:auto}
+.pact a{text-decoration:none}
+#print{display:none}
+@media print{
+  @page{size:A4;margin:12mm}
+  html,body{background:#fff!important;color:#000!important}
+  body::before{display:none!important}
+  body>*:not(#print){display:none!important}
+  #print{display:block;font-family:'Outfit',Arial,sans-serif;color:#000;font-size:12px}
+  #print h1{font-size:24px;margin-bottom:2px}
+  #print h2{font-size:15px;margin:16px 0 6px;border-bottom:2px solid #000;padding-bottom:3px;page-break-after:avoid}
+  #print table{width:100%;border-collapse:collapse}
+  #print tr{page-break-inside:avoid}
+  #print td,#print th{border:1px solid #888;padding:7px 8px;text-align:left;vertical-align:middle}
+  #print th{background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:11px;text-transform:uppercase}
+  #print .box{display:inline-block;width:14px;height:14px;border:1.6px solid #000;vertical-align:middle;margin-right:7px;border-radius:2px}
+  #print .line{display:inline-block;min-width:150px;border-bottom:1px solid #000;height:14px;vertical-align:bottom}
+  #print .meta{color:#333;margin-bottom:6px}
+  #print .note{color:#333;font-size:11px;margin:6px 0}
+  #print .w{font-weight:700}
+  #print .foot{margin-top:18px;text-align:center;color:#777;font-size:10px}
+}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:200;width:100%;height:100%}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0d3220;border:1px solid var(--gold);padding:11px 18px;border-radius:12px;z-index:120;font-size:14px;animation:rise .25s;box-shadow:0 10px 30px rgba(0,0,0,.5)}
 @media(max-width:600px){
@@ -248,6 +310,7 @@ table.st{width:100%;border-collapse:collapse;font-size:14px}
 <div class="wrap" id="app"></div>
 <div id="modal-root"></div>
 <canvas id="confetti"></canvas>
+<div id="print"></div>
 
 <script>
 /* ============ estado ============ */
@@ -285,7 +348,7 @@ function tBall(t,id,s){return ball(t.balls[id]||1,s)}
 function toast(msg){const d=document.createElement('div');d.className='toast';d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
 
 /* ============ navegação ============ */
-function go(p,tid){view.page=p;if(tid)view.tid=tid;render();window.scrollTo({top:0})}
+function go(p,tid){view.page=p;if(tid){view.tid=tid;view.ttab='games'}render();window.scrollTo({top:0})}
 function setTab(t){view.tab=t;render()}
 
 function render(){
@@ -308,9 +371,10 @@ function tStatus(t){
     R.forEach(r=>r.forEach(m=>{if(isP(m.a)&&isP(m.b)){tot++;if(m.w)done++}}));
     const ch=koChampion(t,R);return{tot,done,ch};
   }
-  const ms=t.matches.filter(m=>!m.bye);const done=ms.filter(m=>m.w).length;
-  const ch=done===ms.length&&ms.length?standings(t)[0].id:null;
-  return{tot:ms.length,done,ch};
+  const ms=t.matches.filter(m=>!m.bye);const done=ms.filter(m=>m.w).length;let ch=null,tie=false;
+  if(ms.length&&done===ms.length){const s=standings(t);
+    if(s[1]&&s[0].P===s[1].P&&s[0].V===s[1].V&&s[0].D===s[1].D)tie=true;else ch=s[0].id}
+  return{tot:ms.length,done,ch,tie};
 }
 function renderCamps(){
   if(!S.tournaments.length) return `<div class="card empty-hero">
@@ -330,26 +394,32 @@ function renderCamps(){
 }
 let bulk=false;
 function renderPlayers(){
-  const list=S.players.map((p,i)=>`<div class="pitem">${ball(i%15+1,30)}<div class="nm">${esc(p.name)}</div>
+  const list=S.players.map((p,i)=>`<div class="pitem">${ball(i%15+1,30)}<div class="nm">${esc(p.name)}${p.phone?`<small>📞 ${esc(p.phone)}</small>`:'<small class="nophone">sem telefone</small>'}</div>
+    ${p.phone?`<a class="x" title="Ligar" href="tel:${digits(p.phone)}">📞</a>`:''}
+    <button class="x" title="Editar" onclick="editPlayer('${p.id}')">✎</button>
     <button class="x" title="Remover" onclick="delPlayer('${p.id}')">×</button></div>`).join('');
   return `<div class="sec-head"><div><h2>Jogadores</h2><div class="sub">${S.players.length} cadastrado(s)</div></div></div>
   <div class="card">
-    ${bulk?`<textarea class="inp" id="bulkin" placeholder="Um nome por linha&#10;João&#10;Maria&#10;Pedro"></textarea>
+    ${bulk?`<textarea class="inp" id="bulkin" placeholder="Um por linha — nome e telefone separados por vírgula&#10;João, (14) 99999-0000&#10;Maria, 14 98888-1111&#10;Pedro"></textarea>
       <div class="addrow" style="margin-top:10px"><button class="btn gold" onclick="addBulk()">Adicionar todos</button><button class="btn ghost" onclick="bulk=false;render()">Cancelar</button></div>`
-    :`<div class="addrow"><input class="inp" id="pin" placeholder="Nome do jogador" maxlength="40" onkeydown="if(event.key==='Enter')addPlayer()">
+    :`<div class="addrow"><input class="inp" id="pin" placeholder="Nome do jogador" maxlength="40" onkeydown="if(event.key==='Enter')$('#pph').focus()">
+      <input class="inp" id="pph" type="tel" placeholder="Telefone (opcional)" style="max-width:240px" onkeydown="if(event.key==='Enter')addPlayer()">
       <button class="btn gold" onclick="addPlayer()">＋ Adicionar</button></div>
       <div style="margin-top:10px"><button class="link" onclick="bulk=true;render();setTimeout(()=>$('#bulkin').focus(),0)">Adicionar vários de uma vez</button></div>`}
     ${S.players.length?`<div class="plist">${list}</div>`:`<p class="sub" style="margin-top:16px">Nenhum jogador cadastrado ainda.</p>`}
   </div>`;
 }
 function addPlayer(){
-  const v=$('#pin').value.trim();if(!v)return;
+  const v=$('#pin').value.trim(),ph=$('#pph').value.trim();if(!v){$('#pin').focus();return}
   if(S.players.some(p=>p.name.toLowerCase()===v.toLowerCase())){toast('Esse jogador já existe');return}
-  S.players.push({id:uid(),name:v});save();render();setTimeout(()=>$('#pin')&&$('#pin').focus(),0);
+  S.players.push({id:uid(),name:v,phone:ph});save();render();setTimeout(()=>$('#pin')&&$('#pin').focus(),0);
 }
 function addBulk(){
-  const names=$('#bulkin').value.split('\n').map(s=>s.trim()).filter(Boolean);let n=0;
-  names.forEach(v=>{if(!S.players.some(p=>p.name.toLowerCase()===v.toLowerCase())){S.players.push({id:uid(),name:v.slice(0,40)});n++}});
+  let n=0;
+  $('#bulkin').value.split('\n').map(s=>s.trim()).filter(Boolean).forEach(line=>{
+    const k=line.search(/[,;\t]/),name=(k<0?line:line.slice(0,k)).trim().slice(0,40),phone=k<0?'':line.slice(k+1).trim();
+    if(name&&!S.players.some(p=>p.name.toLowerCase()===name.toLowerCase())){S.players.push({id:uid(),name,phone});n++}
+  });
   bulk=false;save();render();toast(`${n} jogador(es) adicionado(s)`);
 }
 function delPlayer(id){
@@ -370,7 +440,7 @@ function askConfirm(msg,yes,label='Confirmar'){
 /* novo campeonato */
 function openNew(){
   if(S.players.length<2){toast('Cadastre pelo menos 2 jogadores');setTab('players');return}
-  NT={name:'Campeonato de Sinuca',fmt:'ko',sel:new Set(S.players.map(p=>p.id)),pw:3,pl:0,dbl:false,full:true};
+  NT={name:'Campeonato de Sinuca',fmt:'ko',sel:new Set(S.players.map(p=>p.id)),pw:3,pd:1,pl:0,dbl:false,full:true};
   drawNew();
 }
 function drawNew(){
@@ -389,6 +459,7 @@ function drawNew(){
   <div class="opts">${NT.fmt==='ko'
     ?`<label class="opt"><input type="checkbox" ${NT.full?'checked':''} onchange="NT.full=this.checked;drawNew()"> Chave completa (2, 4, 8, 16…)</label>`
     :`<span class="opt">Vitória <input type="number" min="0" value="${NT.pw}" onchange="NT.pw=+this.value||0;drawNew()"> pts</span>
+      <span class="opt">Empate <input type="number" min="0" value="${NT.pd}" onchange="NT.pd=+this.value||0;drawNew()"> pts</span>
       <span class="opt">Derrota <input type="number" min="0" value="${NT.pl}" onchange="NT.pl=+this.value||0;drawNew()"> pts</span>
       <label class="opt"><input type="checkbox" ${NT.dbl?'checked':''} onchange="NT.dbl=this.checked;drawNew()"> Ida e volta</label>`}</div>
   <label style="display:flex;justify-content:space-between;align-items:center">Jogadores (${n})
@@ -403,7 +474,7 @@ function togSel(id){NT.sel.has(id)?NT.sel.delete(id):NT.sel.add(id);drawNew()}
 function quickAdd(){
   const v=$('#qa').value.trim();if(!v)return;
   let p=S.players.find(x=>x.name.toLowerCase()===v.toLowerCase());
-  if(!p){p={id:uid(),name:v.slice(0,40)};S.players.push(p);save()}
+  if(!p){p={id:uid(),name:v.slice(0,40),phone:''};S.players.push(p);save()}
   NT.sel.add(p.id);drawNew();setTimeout(()=>$('#qa').focus(),0);
 }
 function nextPow2(n){let p=1;while(p<n)p*=2;return p}
@@ -411,8 +482,8 @@ function createT(){
   const ids=S.players.filter(p=>NT.sel.has(p.id)).map(p=>p.id);
   if(ids.length<2)return;
   const t={id:uid(),name:NT.name.trim()||'Campeonato de Sinuca',format:NT.fmt,createdAt:Date.now(),playerIds:ids,
-    names:{},balls:{},pw:NT.pw,pl:NT.pl,dbl:NT.dbl,full:NT.full,r0:[],win:{},over:{},matches:[],champSeen:null};
-  ids.forEach(id=>{t.names[id]=S.players.find(p=>p.id===id).name;t.balls[id]=pBall(id)});
+    names:{},balls:{},pw:NT.pw,pd:NT.pd,pl:NT.pl,dbl:NT.dbl,full:NT.full,r0:[],win:{},over:{},matches:[],champSeen:null};
+  t.phones={};ids.forEach(id=>{const p=S.players.find(p=>p.id===id);t.names[id]=p.name;t.phones[id]=p.phone||'';t.balls[id]=pBall(id)});
   doDraw(t);S.tournaments.push(t);save();closeModal();go('tour',t.id);showDraw(t);
 }
 
@@ -431,7 +502,7 @@ function doDraw(t){
 }
 function redraw(){
   const t=cur();
-  askConfirm('Refazer o sorteio vai <b>apagar todos os resultados</b> deste campeonato.',()=>{doDraw(t);save();render();showDraw(t)},'Sortear de novo');
+  askConfirm('Refazer o sorteio vai <b>apagar todos os resultados</b> deste campeonato.<br><span class="sub">Se mudar de ideia, use ↩ Desfazer para voltar ao sorteio anterior.</span>',()=>{snap();doDraw(t);save();render();showDraw(t)},'Sortear de novo');
 }
 let rollTimer=null;
 function showDraw(t){
@@ -461,10 +532,16 @@ function renderTour(t){
   const head=`<div class="thead"><button class="back" onclick="go('home')">←</button>
     <div><span class="badge ${t.format}">${t.format==='ko'?'⚔️ Mata-mata':'🔁 Pontos corridos'}</span><h2 style="margin-top:6px">${esc(t.name)}</h2></div>
     <div class="sp"></div>
+    <button class="btn ghost sm" onclick="undo()" ${hist.some(h=>h.tid===t.id)?'':'disabled'}>↩ Desfazer</button>
+    <button class="btn ghost sm" onclick="openEditT()">⚙️ Editar</button>
+    <button class="btn ghost sm" onclick="openPrint()">🖨️ Imprimir</button>
     <button class="btn ghost sm" onclick="redraw()">🎲 Refazer sorteio</button>
     <button class="btn danger sm" onclick="delTour()">Excluir</button></div>`;
-  const champ=st.ch?`<div class="champ"><div class="tro">🏆</div>${tBall(t,st.ch,54)}<div><small>Campeão</small><b>${esc(tName(t,st.ch))}</b></div></div>`:'';
-  return head+champ+(t.format==='ko'?renderKO(t):renderRR(t));
+  const champ=st.ch?`<div class="champ"><div class="tro">🏆</div>${tBall(t,st.ch,54)}<div><small>Campeão</small><b>${esc(tName(t,st.ch))}</b></div></div>`
+    :st.tie?`<div class="tie">🤝 <b>Empate na liderança!</b> Todos os jogos foram disputados e os primeiros colocados estão empatados. Usem ＋ Adicionar jogo para criar um desempate.</div>`:'';
+  const tt=view.ttab||'games';
+  const tabs=`<nav class="tabs" style="margin:0 0 16px"><button class="${tt==='games'?'on':''}" onclick="view.ttab='games';render()">🎱 Jogos</button><button class="${tt==='prize'?'on':''}" onclick="view.ttab='prize';render()">🏅 Premiação</button></nav>`;
+  return head+champ+tabs+(tt==='prize'?renderPrize(t):t.format==='ko'?renderKO(t):renderRR(t));
 }
 function delTour(){
   const t=cur();askConfirm(`Excluir o campeonato <b>${esc(t.name)}</b>? Isso não pode ser desfeito.`,()=>{
@@ -527,15 +604,15 @@ function renderKO(t){
     round.forEach((m,i)=>{
       num++;
       const done=isP(m.w)&&isP(m.a)&&isP(m.b);
-      cards+=`<div class="match ${done?'done':''} ${r===L.length-1?'final':''}" style="left:${r*(W+G)}px;top:${TOP+C[r][i]-CH/2}px;width:${W}px">
-        <div class="mnum">J${num}</div>${slotHTML(t,m,r,i,0)}${slotHTML(t,m,r,i,1)}</div>`;
+      cards+=`<div class="match ${done?'done':''} ${r===L.length-1?'final':''}" onclick="matchClick(event,${r},${i})" style="left:${r*(W+G)}px;top:${TOP+C[r][i]-CH/2}px;width:${W}px">
+        <div class="mnum" data-tip="<b>J${num}</b> = Jogo nº ${num}. Toque no jogo para escolher o vencedor ou editar.">J${num}</div>${slotHTML(t,m,r,i,0)}${slotHTML(t,m,r,i,1)}</div>`;
     });
   });
   return `<div class="toolbar">
     <button class="btn ghost sm" onclick="addChave()">＋ Chave</button>
     <button class="btn ghost sm" onclick="remChave()" ${t.r0.length<=1?'disabled':''}>－ Chave</button>
     <span class="sub">${t.r0.length} chave(s) na 1ª fase</span>
-    <span class="tip">👆 Toque no nome para marcar o vencedor · ✋ arraste para mover</span></div>
+    <span class="tip">👆 Toque num jogo para escolher o vencedor ou editar · ✋ arraste nomes para mover · ↩ Desfazer volta a última ação</span></div>
   <div class="pool" id="pool" data-pool><span class="lbl">Fora da chave</span>${pool.length?pool.map(id=>`<div class="chip" data-drag data-pid="${id}" data-src="pool">${tBall(t,id,22)}${esc(tName(t,id))}</div>`).join(''):'<span class="sub" style="font-size:13px">Arraste um nome para cá para tirá-lo da 1ª fase</span>'}</div>
   <div class="bracket-scroll"><div class="bracket" style="width:${width}px;height:${height}px">
     <svg width="${width}" height="${height}" style="position:absolute;inset:0">${paths}</svg>${labels}${cards}</div></div>`;
@@ -543,36 +620,69 @@ function renderKO(t){
 function slotHTML(t,m,r,i,s){
   const v=s?m.b:m.a,empty=r===0&&(s?m.be:m.ae),ov=s?m.bo:m.ao;
   const attrs=`data-drop data-r="${r}" data-i="${i}" data-s="${s}"`;
+  const ovb=ov?`<span class="ovm" title="Colocado à mão — toque para voltar ao automático" onclick="event.stopPropagation();clearOver('${r}-${i}-${s}')">✎</span>`:'';
   if(isP(v)){
     const full=isP(m.a)&&isP(m.b),win=full&&m.w===v,lose=full&&m.w&&m.w!==v;
     return `<div class="slot ${win?'win':''} ${lose?'lose':''}" ${attrs}>
       <div class="pn" data-drag data-pid="${v}" data-src="${r}-${i}-${s}">${tBall(t,v,22)}<span>${esc(tName(t,v))}</span></div>
-      ${ov?`<span class="ovm" title="Colocado manualmente — clique para desfazer" onclick="clearOver('${r}-${i}-${s}')">✎</span>`:''}
-      ${win?'<span class="ck">✓</span>':''}</div>`;
+      ${ovb}${win?'<span class="ck">✓</span>':''}</div>`;
   }
-  if(empty)return `<div class="slot empty" ${attrs}>vazio — arraste um jogador</div>`;
-  if(v==='BYE')return `<div class="slot bye" ${attrs}>folga</div>`;
+  if(empty)return `<div class="slot empty" ${attrs}>vazio — toque ou arraste</div>`;
+  if(v==='BYE')return `<div class="slot bye" ${attrs}>folga ${ovb}</div>`;
   return `<div class="slot pend" ${attrs}>a definir</div>`;
 }
 function cleanKeys(t){
   const L=koShape(t.r0.length);
   for(const o of [t.win,t.over])Object.keys(o).forEach(k=>{const [r,i]=k.split('-').map(Number);if(r>=L.length||i>=L[r])delete o[k]});
 }
-function addChave(){const t=cur();t.r0.push([null,null]);cleanKeys(t);save();render()}
-function remChave(){const t=cur();if(t.r0.length<=1)return;t.r0.pop();cleanKeys(t);save();render()}
-function clearOver(k){const t=cur();delete t.over[k];save();render()}
+function addChave(){const t=cur();snap();t.r0.push([null,null]);cleanKeys(t);save();render()}
+function remChave(){const t=cur();if(t.r0.length<=1)return;snap();t.r0.pop();cleanKeys(t);save();render()}
+function clearOver(k){const t=cur();snap();delete t.over[k];save();render()}
 function clickName(pid,src){
-  const t=cur();if(!t)return;
-  if(t.format==='ko'){
-    if(src==='pool')return;
-    const [r,i]=src.split('-').map(Number);const m=computeKO(t)[r][i];
-    if(!(isP(m.a)&&isP(m.b))){toast('Esse jogador avança direto (folga)');return}
-    const k=r+'-'+i;if(t.win[k]===pid)delete t.win[k];else t.win[k]=pid;
-    save();render();
-  }
+  const t=cur();if(!t||t.format!=='ko'||src==='pool')return;
+  const [r,i]=src.split('-').map(Number);openMatch(r,i);
+}
+function matchClick(e,r,i){if(e.target.closest('[data-drag],.ovm,.mnum'))return;openMatch(r,i)}
+function koNum(R,r,i){let n=0;for(let k=0;k<r;k++)n+=R[k].length;return n+i+1}
+function openMatch(r,i){
+  const t=cur();if(!t)return;const R=computeKO(t);if(!R[r]||!R[r][i])return;
+  const m=R[r][i],key=r+'-'+i,num=koNum(R,r,i),full=isP(m.a)&&isP(m.b);
+  const where={};t.r0.forEach((mm,mi)=>mm.forEach(x=>{if(x)where[x]=mi}));
+  const selFor=s=>{
+    if(r===0){const cv=t.r0[i][s]||'';
+      return `<select class="inp" onchange="setSlot(${r},${i},${s},this.value)"><option value="">— vazio —</option>${t.playerIds.map(id=>`<option value="${id}" ${id===cv?'selected':''}>${esc(tName(t,id))}${where[id]!==undefined&&id!==cv?` (está no J${where[id]+1})`:''}</option>`).join('')}</select>`}
+    const ov=t.over[`${r}-${i}-${s}`]||'',fi=2*i+s,feeder=fi<R[r-1].length?`vencedor do J${koNum(R,r-1,fi)}`:'folga';
+    return `<select class="inp" onchange="setSlot(${r},${i},${s},this.value)"><option value="">Automático (${feeder})</option><option value="BYE" ${ov==='BYE'?'selected':''}>— ninguém (folga) —</option>${t.playerIds.map(id=>`<option value="${id}" ${id===ov?'selected':''}>${esc(tName(t,id))}</option>`).join('')}</select>`;
+  };
+  let res;
+  if(full)res=`<div class="wbtns">${[m.a,m.b].map(id=>`<button class="wbtn ${m.w===id?'on':''}" onclick="setWin(${r},${i},'${id}')">${tBall(t,id,28)}<span>${esc(tName(t,id))}</span>${m.w===id?'<b style="margin-left:auto">✓</b>':''}</button>`).join('')}</div>
+    ${t.win[key]?`<div style="margin-top:10px"><button class="btn ghost sm" onclick="setWin(${r},${i},null)">↩ Desfazer resultado (ninguém venceu ainda)</button></div>`:''}`;
+  else if(isP(m.w))res=`<p class="sub">${esc(tName(t,m.w))} avança direto por folga. Para mudar, escolha um adversário abaixo.</p>`;
+  else res=`<p class="sub">Aguardando os dois jogadores deste jogo.</p>`;
+  openModal(`<h2>J${num} · ${roundName(r,R.length)}</h2>
+    <label>Quem venceu?</label>${res}
+    <label>Jogador de cima</label>${selFor(0)}
+    <label>Jogador de baixo</label>${selFor(1)}
+    <p class="hint">${r===0?'Escolher um jogador que já está em outro jogo troca os dois de lugar.':'"Automático" usa o vencedor do jogo anterior. Escolher um nome coloca o jogador à mão.'}</p>
+    <div class="actions"><button class="btn gold" onclick="closeModal()">Pronto</button></div>`);
+}
+function setWin(r,i,pid){
+  const t=cur();snap();const k=r+'-'+i;
+  if(pid===null||t.win[k]===pid){delete t.win[k];save();render();openMatch(r,i);return}
+  t.win[k]=pid;save();closeModal();render();toast(`${tName(t,pid)} avançou ✓`);
+}
+function setSlot(r,i,s,val){
+  const t=cur();snap();
+  if(r===0){
+    const pid=val||null,prev=t.r0[i][s];
+    if(pid&&prev!==pid){let from=null;t.r0.forEach((m,mi)=>m.forEach((x,si)=>{if(x===pid)from=[mi,si]}));
+      if(from){t.r0[from[0]][from[1]]=prev;delete t.win['0-'+from[0]]}}
+    t.r0[i][s]=pid;delete t.win['0-'+i];
+  }else{const k=`${r}-${i}-${s}`;if(val)t.over[k]=val;else delete t.over[k]}
+  save();render();openMatch(r,i);
 }
 function dropKO(pid,src,tgt){
-  const t=cur();
+  const t=cur();snap();
   if(tgt==='pool'){
     if(src&&src!=='pool'){const [r,i,s]=src.split('-').map(Number);if(r===0)t.r0[i][s]=null;else delete t.over[src]}
   }else{
@@ -604,48 +714,265 @@ function schedule(ids,dbl){
   let all=rounds;if(dbl)all=all.concat(rounds.map(ms=>ms.map(([x,y])=>[y,x])));
   const out=[];
   all.forEach((ms,ri)=>ms.forEach(([x,y])=>{
-    if(x===null||y===null)out.push({id:uid(),round:ri,a:x??y,b:null,bye:true});
-    else out.push({id:uid(),round:ri,a:x,b:y,sa:'',sb:'',w:null});
+    if(x===null||y===null)return;
+    out.push({id:uid(),round:ri,a:x,b:y,w:null});
   }));
   return out;
 }
+/* ============ pontos corridos (v2: vitória / empate / derrota) ============ */
 function standings(t){
-  const st={};t.playerIds.forEach(id=>st[id]={id,P:0,J:0,V:0,D:0,FP:0,FC:0});
+  const pw=t.pw??3,pd=t.pd??1,pl=t.pl??0,st={};
+  t.playerIds.forEach(id=>st[id]={id,P:0,J:0,V:0,E:0,D:0});
   t.matches.forEach(m=>{
-    if(m.bye||!m.w)return;const A=st[m.a],B=st[m.b],wa=m.w===m.a,W=wa?A:B,Lo=wa?B:A;
-    A.J++;B.J++;W.V++;Lo.D++;W.P+=t.pw;Lo.P+=t.pl||0;
-    const sa=+m.sa||0,sb=+m.sb||0;A.FP+=sa;A.FC+=sb;B.FP+=sb;B.FC+=sa;
+    if(m.bye||!m.w||!st[m.a]||!st[m.b])return;const A=st[m.a],B=st[m.b];A.J++;B.J++;
+    if(m.w==='DRAW'){A.E++;B.E++;A.P+=pd;B.P+=pd}
+    else{const W=m.w===m.a?A:B,L=W===A?B:A;W.V++;L.D++;W.P+=pw;L.P+=pl}
   });
-  return Object.values(st).sort((x,y)=>y.P-x.P||y.V-x.V||(y.FP-y.FC)-(x.FP-x.FC)||y.FP-x.FP||tName(t,x.id).localeCompare(tName(t,y.id)));
+  const mx=Math.max(pw,pd,pl)||1;
+  return Object.values(st).map(s=>(s.AP=s.J?Math.round(s.P/(s.J*mx)*100):0,s))
+    .sort((x,y)=>y.P-x.P||y.V-x.V||x.D-y.D||tName(t,x.id).localeCompare(tName(t,y.id)));
 }
+const TIPS=t=>({
+  '#':'<b># — Posição</b><br>Critério de desempate: pontos → vitórias → menos derrotas.',
+  P:`<b>P — Pontos</b><br>Vitória = ${t.pw??3} · Empate = ${t.pd??1} · Derrota = ${t.pl??0} ponto(s).`,
+  J:'<b>J — Jogos</b><br>Quantos jogos o jogador já disputou.',
+  V:'<b>V — Vitórias</b><br>Jogos que o jogador ganhou.',
+  E:'<b>E — Empates</b><br>Jogos que terminaram empatados.',
+  D:'<b>D — Derrotas</b><br>Jogos que o jogador perdeu.',
+  '%':'<b>% — Aproveitamento</b><br>Pontos conquistados ÷ pontos que poderia ter feito nos jogos disputados.'});
+function th(k,t){return `${k}<i class="info" data-tip="${esc(TIPS(t)[k])}">i</i>`}
+function rrRounds(t){return [...new Set(t.matches.filter(m=>!m.bye).map(m=>m.round))].sort((a,b)=>a-b)}
 function renderRR(t){
-  const byR={};t.matches.forEach(m=>(byR[m.round]=byR[m.round]||[]).push(m));
-  const rounds=Object.keys(byR).sort((a,b)=>a-b).map(r=>{
-    const ms=byR[r],real=ms.filter(m=>!m.bye),done=real.filter(m=>m.w).length;
-    return `<div class="round"><h4>${+r+1}ª Rodada <small>${done}/${real.length} jogos</small></h4>${ms.map(m=>{
-      if(m.bye)return `<div class="folga">${tBall(t,m.a,18)} ${esc(tName(t,m.a))} folga nesta rodada</div>`;
-      const cls=id=>m.w?(m.w===id?'win':'lose'):'';
-      return `<div class="rm ${m.w?'done':''}">
-        <div class="rp ${cls(m.a)}" onclick="rrWin('${m.id}','${m.a}')">${tBall(t,m.a,24)}<span>${esc(tName(t,m.a))}</span></div>
-        <div class="sc"><input inputmode="numeric" value="${esc(m.sa)}" placeholder="-" onchange="rrScore('${m.id}','a',this.value)"><b>×</b><input inputmode="numeric" value="${esc(m.sb)}" placeholder="-" onchange="rrScore('${m.id}','b',this.value)"></div>
-        <div class="rp r ${cls(m.b)}" onclick="rrWin('${m.id}','${m.b}')">${tBall(t,m.b,24)}<span>${esc(tName(t,m.b))}</span></div></div>`}).join('')}</div>`;
-  }).join('');
-  const sd=standings(t),anyPlayed=t.matches.some(m=>m.w);
-  const rows=sd.map((s,i)=>`<tr class="${i===0&&anyPlayed?'lead':''}"><td><span class="pos">${i+1}</span></td>
+  const ms=t.matches.filter(m=>!m.bye),rIdx=rrRounds(t);
+  const row=m=>{const cls=id=>m.w==='DRAW'?'draw':m.w?(m.w===id?'win':'lose'):'';
+    return `<div class="rm ${m.w?'done':''}">
+      <div class="rp ${cls(m.a)}" onclick="rrRes('${m.id}','${m.a}')">${tBall(t,m.a,24)}<span>${esc(tName(t,m.a))}</span></div>
+      <button class="drawbtn ${m.w==='DRAW'?'on':''}" onclick="rrRes('${m.id}','DRAW')">Empate</button>
+      <div class="rp r ${cls(m.b)}" onclick="rrRes('${m.id}','${m.b}')">${tBall(t,m.b,24)}<span>${esc(tName(t,m.b))}</span></div>
+      <button class="edit" title="Editar jogo" onclick="openRRMatch('${m.id}')">✎</button></div>`};
+  const rounds=rIdx.map((r,ri)=>{
+    const rm=ms.filter(m=>m.round===r),done=rm.filter(m=>m.w).length;
+    const pl=new Set(rm.flatMap(m=>[m.a,m.b])),fol=t.playerIds.filter(id=>!pl.has(id));
+    return `<div class="round"><h4>${ri+1}ª Rodada <small>${done}/${rm.length} jogos</small></h4>${rm.map(row).join('')}
+      ${fol.length?`<div class="folga">Folga: ${fol.map(id=>esc(tName(t,id))).join(', ')}</div>`:''}</div>`}).join('')
+    ||'<p class="sub">Nenhum jogo ainda. Use ＋ Adicionar jogo.</p>';
+  const sd=standings(t),any=ms.some(m=>m.w);
+  const rows=sd.map((s,i)=>`<tr class="${i===0&&any?'lead':''}"><td><span class="pos">${i+1}</span></td>
     <td class="n"><div>${tBall(t,s.id,22)}${esc(tName(t,s.id))}</div></td>
-    <td class="pts">${s.P}</td><td>${s.J}</td><td>${s.V}</td><td>${s.D}</td><td>${s.FP-s.FC>0?'+':''}${s.FP-s.FC}</td></tr>`).join('');
-  return `<div class="toolbar"><span class="tip" style="margin-left:0">👆 Toque no nome de quem venceu, ou digite o placar (opcional) · Vitória = ${t.pw} pts${t.pl?` · Derrota = ${t.pl} pts`:''}</span></div>
-  <div class="rr"><div class="card">${rounds}</div>
+    <td class="pts">${s.P}</td><td>${s.J}</td><td>${s.V}</td><td>${s.E}</td><td>${s.D}</td><td>${s.AP}%</td></tr>`).join('');
+  return `<div class="toolbar"><button class="btn ghost sm" onclick="openRRMatch()">＋ Adicionar jogo</button>
+    <span class="tip">👆 Toque em quem venceu ou em Empate · toque de novo para desfazer · ✎ edita o jogo</span></div>
+  <div class="rrgrid"><div class="card">${rounds}</div>
   <div class="card sticky"><h4 style="font-family:'Bebas Neue';font-size:24px;letter-spacing:1.3px;margin-bottom:8px">Classificação</h4>
-  <table class="st"><thead><tr><th>#</th><th>Jogador</th><th>P</th><th>J</th><th>V</th><th>D</th><th>SP</th></tr></thead><tbody>${rows}</tbody></table>
-  <p class="hint" style="margin-top:10px">P pontos · J jogos · V vitórias · D derrotas · SP saldo de partidas (placar)</p></div></div>`;
+  <div style="overflow-x:auto"><table class="st"><thead><tr><th>${th('#',t)}</th><th>Jogador</th><th>${th('P',t)}</th><th>${th('J',t)}</th><th>${th('V',t)}</th><th>${th('E',t)}</th><th>${th('D',t)}</th><th>${th('%',t)}</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <p class="hint" style="margin-top:10px">Toque no <i class="info" style="pointer-events:none">i</i> de cada letra para ver o que significa.</p></div></div>`;
 }
-function rrWin(mid,pid){const t=cur(),m=t.matches.find(x=>x.id===mid);m.w=m.w===pid?null:pid;save();render()}
-function rrScore(mid,side,v){
-  const t=cur(),m=t.matches.find(x=>x.id===mid);v=v.replace(/\D/g,'').slice(0,3);m['s'+side]=v;
-  if(m.sa!==''&&m.sb!==''&&+m.sa!==+m.sb)m.w=+m.sa>+m.sb?m.a:m.b;
-  save();render();
+function rrRes(mid,v){const t=cur(),m=t.matches.find(x=>x.id===mid);snap();m.w=m.w===v?null:v;save();render()}
+function openRRMatch(mid){
+  const t=cur(),m=mid?t.matches.find(x=>x.id===mid):null,rIdx=rrRounds(t);
+  const opt=sel=>t.playerIds.map(id=>`<option value="${id}" ${id===sel?'selected':''}>${esc(tName(t,id))}</option>`).join('');
+  const a=m?m.a:t.playerIds[0],b=m?m.b:t.playerIds[1],rs=m?m.round:rIdx[rIdx.length-1];
+  openModal(`<h2>${m?'Editar jogo':'Novo jogo'}</h2>
+    <label>Jogador 1</label><select class="inp" id="ma">${opt(a)}</select>
+    <label>Jogador 2</label><select class="inp" id="mb">${opt(b)}</select>
+    <label>Rodada</label><select class="inp" id="mr">${rIdx.map((r,i)=>`<option value="${r}" ${r===rs?'selected':''}>${i+1}ª rodada</option>`).join('')}<option value="new" ${rIdx.length?'':'selected'}>Nova rodada</option></select>
+    <div class="actions">${m?`<button class="btn danger" style="margin-right:auto" onclick="delRRMatch('${m.id}')">Excluir jogo</button>`:''}
+    <button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn gold" onclick="saveRRMatch('${m?m.id:''}')">Salvar</button></div>`);
 }
+function saveRRMatch(mid){
+  const t=cur(),a=$('#ma').value,b=$('#mb').value;let r=$('#mr').value;
+  if(a===b){toast('Escolha dois jogadores diferentes');return}
+  r=r==='new'?Math.max(-1,...t.matches.map(x=>x.round))+1:+r;
+  snap();
+  if(mid){const m=t.matches.find(x=>x.id===mid);if(m.w&&m.w!=='DRAW'&&m.w!==a&&m.w!==b)m.w=null;m.a=a;m.b=b;m.round=r}
+  else t.matches.push({id:uid(),round:r,a,b,w:null});
+  save();closeModal();render();
+}
+function delRRMatch(mid){const t=cur();snap();t.matches=t.matches.filter(x=>x.id!==mid);save();closeModal();render();toast('Jogo excluído — ↩ Desfazer traz de volta')}
+
+/* ============ desfazer ============ */
+let hist=[];
+function snap(){const t=cur();if(!t)return;hist.push({tid:t.id,d:JSON.stringify(t)});if(hist.length>80)hist.shift()}
+function undo(){
+  const t=cur();if(!t)return;
+  for(let k=hist.length-1;k>=0;k--)if(hist[k].tid===t.id){
+    const h=hist.splice(k,1)[0],i=S.tournaments.findIndex(x=>x.id===t.id);
+    S.tournaments[i]=JSON.parse(h.d);save();closeModal();render();toast('Última ação desfeita');return}
+}
+
+/* ============ editar campeonato depois do sorteio ============ */
+function openEditT(){
+  const t=cur(),others=S.players.filter(p=>!t.playerIds.includes(p.id));
+  openModal(`<h2>Editar campeonato</h2>
+  <label>Nome</label><input class="inp" value="${esc(t.name)}" onchange="editTF('name',this.value)">
+  ${t.format==='rr'?`<label>Pontuação</label><div class="opts" style="margin-top:0">
+    <span class="opt">Vitória <input type="number" min="0" value="${t.pw??3}" onchange="editTF('pw',this.value)"></span>
+    <span class="opt">Empate <input type="number" min="0" value="${t.pd??1}" onchange="editTF('pd',this.value)"></span>
+    <span class="opt">Derrota <input type="number" min="0" value="${t.pl??0}" onchange="editTF('pl',this.value)"></span></div>`:''}
+  <label>Jogadores no campeonato (${t.playerIds.length})</label>
+  <div class="tplist">${t.playerIds.map(id=>`<span class="chip on" style="cursor:default">${tBall(t,id,22)}${esc(tName(t,id))}<button class="x" title="Tirar do campeonato" onclick="remFromT('${id}')">×</button></span>`).join('')}</div>
+  <label>Adicionar jogador</label>
+  ${others.length?`<div class="pick">${others.map(p=>`<div class="chip" onclick="addToT('${p.id}')">${ball(pBall(p.id),22)}＋ ${esc(p.name)}</div>`).join('')}</div>`:''}
+  <div class="addrow" style="margin-top:10px"><input class="inp" id="qa2" placeholder="Novo jogador" onkeydown="if(event.key==='Enter')newToT()"><button class="btn ghost" onclick="newToT()">＋</button></div>
+  <p class="hint">${t.format==='rr'?'Se ainda não houver resultados, as rodadas são refeitas de forma equilibrada. Se já houver, os jogos novos entram no fim e os resultados são mantidos.':'Quem você adicionar fica em "Fora da chave": arraste para uma vaga, toque num jogo para escolher, ou use ＋ Chave.'}</p>
+  <div class="actions"><button class="btn gold" onclick="closeModal()">Pronto</button></div>`);
+}
+function editTF(k,v){const t=cur();snap();t[k]=k==='name'?(v.trim()||t.name):(+v||0);save();render()}
+function placeRR(t,a,b){
+  const rs=rrRounds(t);
+  let r=rs.find(r=>!t.matches.some(m=>!m.bye&&m.round===r&&[m.a,m.b].some(x=>x===a||x===b)));
+  if(r===undefined)r=(rs.length?rs[rs.length-1]:-1)+1;
+  t.matches.push({id:uid(),round:r,a,b,w:null});
+}
+function addToT(pid){
+  const t=cur(),p=S.players.find(x=>x.id===pid);if(!p||t.playerIds.includes(pid))return;snap();
+  t.playerIds.push(pid);t.names[pid]=p.name;t.balls[pid]=pBall(pid);
+  if(t.format==='rr'){
+    if(!t.matches.some(m=>m.w))t.matches=schedule(shuffle(t.playerIds),t.dbl);
+    else t.playerIds.filter(x=>x!==pid).forEach(op=>{placeRR(t,op,pid);if(t.dbl)placeRR(t,pid,op)});
+  }
+  save();render();openEditT();toast(t.format==='ko'?`${p.name} está em "Fora da chave"`:`Jogos de ${p.name} criados`);
+}
+function newToT(){
+  const v=$('#qa2').value.trim();if(!v)return;
+  let p=S.players.find(x=>x.name.toLowerCase()===v.toLowerCase());
+  if(!p){p={id:uid(),name:v.slice(0,40),phone:''};S.players.push(p);save()}
+  addToT(p.id);
+}
+function remFromT(pid){
+  const t=cur();if(t.playerIds.length<=2){toast('O campeonato precisa de pelo menos 2 jogadores');return}
+  askConfirm(`Tirar <b>${esc(tName(t,pid))}</b> deste campeonato?${t.format==='rr'?' Os jogos dele serão apagados.':''}<br><span class="sub">Dá para voltar com ↩ Desfazer.</span>`,()=>{
+    snap();t.playerIds=t.playerIds.filter(x=>x!==pid);
+    if(t.format==='rr'){if(!t.matches.some(m=>m.w))t.matches=schedule(shuffle(t.playerIds),t.dbl);else t.matches=t.matches.filter(m=>m.a!==pid&&m.b!==pid)}
+    else{t.r0=t.r0.map(m=>m.map(x=>x===pid?null:x));
+      Object.keys(t.over).forEach(k=>{if(t.over[k]===pid)delete t.over[k]});
+      Object.keys(t.win).forEach(k=>{if(t.win[k]===pid)delete t.win[k]})}
+    save();render();openEditT();
+  },'Tirar');
+}
+
+/* ============ telefone ============ */
+const digits=p=>String(p||'').replace(/\D/g,'');
+function waLink(p){let d=digits(p);if(!d)return'';if(d.length<=11)d='55'+d;return'https://wa.me/'+d}
+function phoneOf(t,id){const p=S.players.find(x=>x.id===id);return(p&&p.phone)||((t&&t.phones)||{})[id]||''}
+function editPlayer(id){
+  const p=S.players.find(x=>x.id===id);
+  if(!p){toast('Esse jogador foi removido da lista de jogadores');return}
+  openModal(`<h2>Editar jogador</h2>
+    <label>Nome</label><input class="inp" id="epn" value="${esc(p.name)}" maxlength="40">
+    <label>Telefone</label><input class="inp" id="epp" type="tel" value="${esc(p.phone||'')}" placeholder="(14) 99999-0000">
+    <div class="actions"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn gold" onclick="savePlayer('${id}')">Salvar</button></div>`);
+}
+function savePlayer(id){
+  const p=S.players.find(x=>x.id===id),n=$('#epn').value.trim();if(!n){toast('Digite o nome');return}
+  p.name=n.slice(0,40);p.phone=$('#epp').value.trim();
+  S.tournaments.forEach(t=>{if(t.names[id]!==undefined){t.names[id]=p.name;(t.phones=t.phones||{})[id]=p.phone}});
+  save();closeModal();render();toast('Jogador atualizado');
+}
+
+/* ============ premiação ============ */
+function ranking(t){
+  if(t.format==='rr')return standings(t).map(s=>[s.id]);
+  const R=computeKO(t),L=R.length,g=[];const f=R[L-1][0];g.push(isP(f.w)?[f.w]:[]);
+  for(let r=L-1;r>=0;r--){const ids=[];R[r].forEach(m=>{if(isP(m.a)&&isP(m.b)&&isP(m.w))ids.push(m.w===m.a?m.b:m.a)});g.push(ids)}
+  return g;
+}
+function ensurePrizes(t){
+  if(!t.prizes)t.prizes=(t.format==='ko'?['🥇 Campeão','🥈 Vice-campeão','🥉 3º lugar (semifinal)']:['🥇 1º lugar','🥈 2º lugar','🥉 3º lugar']).map(l=>({label:l,desc:'',done:false}));
+}
+function prizeLabel(t,i){
+  if(t.format==='rr')return `${i+1}º lugar`;
+  const L=koShape(t.r0.length).length;
+  return i===0?'Campeão':i===1?'Vice-campeão':L-i>=0?`Eliminado na ${roundName(L-i,L).toLowerCase()}`:'Sem colocação correspondente';
+}
+function renderPrize(t){
+  ensurePrizes(t);const G=ranking(t),st=tStatus(t),fin=!!st.ch;
+  const cards=t.prizes.map((p,i)=>{
+    const ids=G[i]||[];
+    const who=ids.length&&(t.format==='ko'||st.done>0)?ids.map(id=>{const ph=phoneOf(t,id);
+      return `<div class="pwin">${tBall(t,id,28)}<b>${esc(tName(t,id))}</b>
+        ${ph?`<span class="sub">📞 ${esc(ph)}</span><span class="pact"><a class="btn ghost sm" href="tel:${digits(ph)}">📞 Ligar</a><a class="btn ghost sm" href="${waLink(ph)}" target="_blank" rel="noopener">💬 WhatsApp</a></span>`
+        :`<span class="sub">sem telefone · <button class="link" onclick="editPlayer('${id}')">cadastrar</button></span>`}</div>`}).join('')
+      :`<span class="sub">A definir</span>`;
+    return `<div class="card prize ${p.done?'pdone':''}">
+      <div class="prh"><input class="inp pl" value="${esc(p.label)}" onchange="setPrize(${i},'label',this.value)">
+        <input class="inp" placeholder="Prêmio (ex.: R$ 200, troféu, medalha)" value="${esc(p.desc)}" onchange="setPrize(${i},'desc',this.value)">
+        <label class="opt"><input type="checkbox" ${p.done?'checked':''} onchange="setPrize(${i},'done',this.checked)"> Entregue</label>
+        <button class="x" title="Remover prêmio" onclick="remPrize(${i})">×</button></div>
+      <div class="sub" style="font-size:12px;margin:2px 0 8px">Posição: ${prizeLabel(t,i)}${!fin&&ids.length?' · parcial':''}</div>
+      <div class="pws">${who}</div></div>`}).join('');
+  return `<div class="toolbar"><button class="btn ghost sm" onclick="addPrize()">＋ Adicionar prêmio</button>
+    <span class="tip">${fin?'🏆 Campeonato encerrado — ligue ou mande mensagem para os premiados.':'⏳ Os premiados mudam conforme os resultados até o fim do campeonato.'}</span></div>
+    <div class="prizes">${cards||'<p class="sub">Nenhum prêmio cadastrado.</p>'}</div>`;
+}
+function setPrize(i,k,v){const t=cur();snap();ensurePrizes(t);t.prizes[i][k]=v;save();render()}
+function addPrize(){const t=cur();snap();ensurePrizes(t);t.prizes.push({label:`${t.prizes.length+1}º prêmio`,desc:'',done:false});save();render()}
+function remPrize(i){const t=cur();snap();t.prizes.splice(i,1);save();render()}
+
+/* ============ impressão ============ */
+function openPrint(){
+  openModal(`<h2>Imprimir</h2><p class="sub">O que você quer imprimir?</p>
+  <div class="fmt" style="margin-top:14px">
+    <div class="fmtc" onclick="doPrint('now')"><span class="ic">📋</span><b>Situação atual</b><small>Jogos, resultados, classificação, jogadores e premiação como estão agora.</small></div>
+    <div class="fmtc" onclick="doPrint('blank')"><span class="ic">✍️</span><b>Folha para marcar</b><small>Jogos com quadradinhos para anotar os resultados à mão.</small></div></div>
+  <div class="actions"><button class="btn ghost" onclick="closeModal()">Cancelar</button></div>`);
+}
+function doPrint(mode){const t=cur();closeModal();$('#print').innerHTML=printHTML(t,mode);setTimeout(()=>window.print(),200)}
+function printHTML(t,mode){
+  const N=id=>esc(tName(t,id)),B='<span class="box"></span>',blank=mode==='blank',now=new Date();
+  let h=`<h1>${esc(t.name)}</h1><div class="meta">${t.format==='ko'?'Mata-mata':'Pontos corridos'} · ${t.playerIds.length} jogadores · ${blank?'Folha para marcar resultados':'Situação em '+now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>`;
+  if(t.format==='ko'){
+    const R=computeKO(t);
+    if(blank)h+=`<p class="note">Marque ☑ o quadrado de quem venceu. Nas fases seguintes, escreva o nome do vencedor do jogo indicado.</p>`;
+    R.forEach((round,r)=>{
+      h+=`<h2>${roundName(r,R.length)}</h2><table><tr><th style="width:44px">Jogo</th><th>Jogador</th><th style="width:24px"></th><th>Jogador</th>${blank?'':'<th>Vencedor</th>'}</tr>`;
+      round.forEach((m,i)=>{
+        const num=koNum(R,r,i),fi=2*i;
+        const cell=(v,s)=>{if(isP(v))return(blank?B:'')+N(v);if(v==='BYE')return '<i>folga</i>';
+          return blank?`${B}<span class="line"></span><small> (venc. J${r>0&&fi+s<R[r-1].length?koNum(R,r-1,fi+s):'?'})</small>`:'<i>a definir</i>'};
+        h+=`<tr><td>J${num}</td><td>${cell(m.a,0)}</td><td>x</td><td>${cell(m.b,1)}</td>${blank?'':`<td class="w">${isP(m.w)?N(m.w)+(isP(m.a)&&isP(m.b)?'':' (folga)'):''}</td>`}</tr>`});
+      h+='</table>';
+    });
+    const ch=koChampion(t,R);
+    h+=blank?`<h2>Campeão</h2><p>🏆 <span class="line" style="min-width:260px"></span></p>`:ch?`<h2>Campeão</h2><p class="w" style="font-size:16px">🏆 ${N(ch)}</p>`:'';
+  }else{
+    const ms=t.matches.filter(m=>!m.bye);
+    if(blank)h+=`<p class="note">Marque ☑ quem venceu ou "Empate". Pontos: vitória ${t.pw??3} · empate ${t.pd??1} · derrota ${t.pl??0}.</p>`;
+    rrRounds(t).forEach((r,ri)=>{
+      const rm=ms.filter(m=>m.round===r);
+      h+=`<h2>${ri+1}ª Rodada</h2><table><tr><th>Jogador</th><th style="width:${blank?90:120}px">${blank?'Empate':'Resultado'}</th><th>Jogador</th></tr>`;
+      rm.forEach(m=>{
+        if(blank)h+=`<tr><td>${B}${N(m.a)}</td><td>${B}Empate</td><td>${B}${N(m.b)}</td></tr>`;
+        else{const res=m.w==='DRAW'?'Empate':m.w?'Venceu: '+N(m.w):'—';
+          h+=`<tr><td class="${m.w===m.a?'w':''}">${N(m.a)}</td><td>${res}</td><td class="${m.w===m.b?'w':''}">${N(m.b)}</td></tr>`}});
+      h+='</table>';
+    });
+    const sd=standings(t);
+    h+=`<h2>Classificação</h2><table><tr><th>#</th><th>Jogador</th><th>P</th><th>J</th><th>V</th><th>E</th><th>D</th></tr>`+
+      (blank?t.playerIds.map(id=>`<tr><td></td><td>${N(id)}</td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')
+      :sd.map((s,i)=>`<tr><td>${i+1}</td><td>${N(s.id)}</td><td class="w">${s.P}</td><td>${s.J}</td><td>${s.V}</td><td>${s.E}</td><td>${s.D}</td></tr>`).join(''))+
+      `</table><p class="note">P = Pontos · J = Jogos · V = Vitórias · E = Empates · D = Derrotas</p>`;
+  }
+  ensurePrizes(t);
+  if(t.prizes.length){const G=ranking(t),st=tStatus(t);
+    h+=`<h2>Premiação</h2><table><tr><th>Prêmio</th><th>Descrição</th><th>Ganhador</th><th>Telefone</th>${blank?'':'<th>Entregue</th>'}</tr>`+
+    t.prizes.map((p,i)=>{const ids=(!blank&&(t.format==='ko'||st.done>0))?(G[i]||[]):[];
+      return `<tr><td>${esc(p.label)}</td><td>${esc(p.desc)}</td><td>${ids.length?ids.map(N).join(', '):'<span class="line"></span>'}</td><td>${ids.map(id=>esc(phoneOf(t,id))).join(', ')}</td>${blank?'':`<td>${p.done?'Sim':B}</td>`}</tr>`}).join('')+'</table>';
+  }
+  h+=`<h2>Jogadores</h2><table><tr><th>Jogador</th><th>Telefone</th></tr>${t.playerIds.map(id=>`<tr><td>${N(id)}</td><td>${esc(phoneOf(t,id))||'<span class="line"></span>'}</td></tr>`).join('')}</table>
+    <p class="foot">Amigos do Bilhar</p>`;
+  return h;
+}
+
+/* ============ dicas (ⓘ) ============ */
+document.addEventListener('click',e=>{
+  const old=document.getElementById('tip');if(old)old.remove();
+  const el=e.target.closest('[data-tip]');if(!el)return;e.stopPropagation();e.preventDefault();
+  const d=document.createElement('div');d.id='tip';d.innerHTML=el.dataset.tip;document.body.appendChild(d);
+  const r=el.getBoundingClientRect();let x=r.left+r.width/2-d.offsetWidth/2;x=Math.max(8,Math.min(x,innerWidth-d.offsetWidth-8));
+  let y=r.bottom+8;if(y+d.offsetHeight>innerHeight-8)y=r.top-d.offsetHeight-8;d.style.left=x+'px';d.style.top=y+'px';
+},true);
+addEventListener('scroll',()=>{const o=document.getElementById('tip');if(o)o.remove()},true);
 
 /* ============ arrastar (mouse e toque) ============ */
 let drag=null;

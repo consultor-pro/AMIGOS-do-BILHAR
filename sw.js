@@ -1,4 +1,4 @@
-const CACHE = 'amigos-bilhar-v1';
+const CACHE = 'amigos-bilhar-v2';
 const FILES = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/favicon.png', './icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
