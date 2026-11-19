@@ -298,6 +298,10 @@ a.x{text-decoration:none;font-size:14px}
 .bkbox .sub{font-size:13px}
 details.adv{margin-top:16px;font-size:14px}
 details.adv summary{cursor:pointer;color:var(--muted);font-size:13px}
+.steps{margin:12px 0 4px 20px;display:grid;gap:9px;line-height:1.45}
+.warn{padding:12px 14px;border-radius:12px;background:rgba(224,87,74,.12);border:1px solid rgba(224,87,74,.35);line-height:1.45;margin-bottom:6px}
+.kbd{display:inline-block;padding:0 6px;border-radius:6px;background:rgba(255,255,255,.12)}
+@media(max-width:420px){#instbtn{padding:8px 10px}}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:200;width:100%;height:100%}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0d3220;border:1px solid var(--gold);padding:11px 18px;border-radius:12px;z-index:120;font-size:14px;animation:rise .25s;box-shadow:0 10px 30px rgba(0,0,0,.5)}
 @media(max-width:600px){
@@ -310,7 +314,7 @@ details.adv summary{cursor:pointer;color:var(--muted);font-size:13px}
 <body>
 <div class="top"><div class="in">
   <div class="brand" onclick="go('home')" id="brand"></div>
-  <button class="btn ghost sm" onclick="openBackup()">💾 Backup</button>
+  <div style="display:flex;gap:8px"><button class="btn gold sm" id="instbtn" onclick="openInstall()">📲 Instalar</button><button class="btn ghost sm" onclick="openBackup()">💾 Backup</button></div>
 </div><div class="diamonds"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
 <div class="wrap" id="app"></div>
 <div id="modal-root"></div>
@@ -1089,6 +1093,28 @@ function confetti(){
 
 render();
 if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+/* ============ instalar como app ============ */
+let deferredPrompt=null;
+const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+if(isStandalone()){const b=document.getElementById('instbtn');if(b)b.style.display='none'}
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e});
+addEventListener('appinstalled',()=>{deferredPrompt=null;const b=document.getElementById('instbtn');if(b)b.style.display='none';toast('App instalado! Procure o ícone na tela inicial.')});
+async function openInstall(){
+  if(deferredPrompt){deferredPrompt.prompt();const r=await deferredPrompt.userChoice;deferredPrompt=null;if(r.outcome!=='accepted')toast('Instalação cancelada');return}
+  const ua=navigator.userAgent,ios=/iPhone|iPad|iPod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const inApp=/Instagram|FBAN|FBAV|FB_IAB|WhatsApp|Line\/|wv\)/i.test(ua);
+  const https=location.protocol==='https:';
+  let body='';
+  if(!https)body=`<p class="warn">⚠️ O app está aberto direto de um arquivo (${esc(location.protocol)}), e assim o celular não deixa instalar. Abra pelo link do site (https://…github.io/…).</p>`;
+  else if(inApp)body=`<p class="warn">⚠️ Você abriu o link dentro de outro app (WhatsApp, Instagram…). Esses navegadores internos não instalam apps.</p>
+    <ol class="steps"><li>Toque nos <b>⋮</b> ou em <b>…</b> no canto da tela.</li><li>Escolha <b>Abrir no navegador</b> (Chrome ou Safari).</li><li>Lá, toque em <b>📲 Instalar</b> de novo.</li></ol>`;
+  else if(ios)body=`<p>No iPhone a instalação é feita pelo <b>Safari</b>:</p>
+    <ol class="steps"><li>Abra este site no <b>Safari</b>.</li><li>Toque no botão <b>Compartilhar</b> <span class="kbd">⬆︎</span> (quadrado com seta, embaixo da tela).</li><li>Role e toque em <b>Adicionar à Tela de Início</b>.</li><li>Toque em <b>Adicionar</b>. O ícone do Amigos do Bilhar aparece na tela.</li></ol>`;
+  else body=`<p>No Android / computador, pelo <b>Google Chrome</b>:</p>
+    <ol class="steps"><li>Toque nos <b>⋮</b> (três pontinhos) no canto de cima.</li><li>Toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</li><li>Confirme em <b>Instalar</b>.</li></ol>
+    <p class="hint">Se a opção não aparecer, recarregue a página uma vez e espere alguns segundos. No Samsung Internet, use o menu <b>≡</b> → <b>Adicionar página a</b> → <b>Tela inicial</b>.</p>`;
+  openModal(`<h2>📲 Instalar o app</h2>${body}<div class="actions"><button class="btn gold" onclick="closeModal()">Entendi</button></div>`);
+}
 </script>
 </body>
 </html>
