@@ -302,6 +302,23 @@ details.adv summary{cursor:pointer;color:var(--muted);font-size:13px}
 .warn{padding:12px 14px;border-radius:12px;background:rgba(224,87,74,.12);border:1px solid rgba(224,87,74,.35);line-height:1.45;margin-bottom:6px}
 .kbd{display:inline-block;padding:0 6px;border-radius:6px;background:rgba(255,255,255,.12)}
 @media(max-width:420px){#instbtn{padding:8px 10px}}
+.tbl{display:grid;gap:6px}
+.tbi{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:10px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);font-size:14px}
+.tbi b{color:var(--gold2);width:24px}.tbi span{flex:1}.tbi .x:disabled{opacity:.25}
+.rsum{margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(233,180,76,.08);border:1px solid rgba(233,180,76,.25);font-size:13.5px;line-height:1.45}
+.rulechip{font-size:13px;padding:7px 11px;border-radius:20px;background:rgba(233,180,76,.12);border:1px solid rgba(233,180,76,.3);color:var(--gold2);cursor:help}
+.rmnote{grid-column:1/-1;font-size:12.5px;color:#cfe0ff;padding:0 6px 2px}
+.rmnote.warn2{color:#ffb3aa}
+.rm.pendt{border-color:rgba(224,87,74,.5)}
+.sc.big{gap:10px}.sc.big input{width:64px;height:48px;font-size:22px}.sc.big b{font-size:16px}
+.scn{min-width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-weight:700;font-size:13px;background:rgba(255,255,255,.08)}
+.scn.w{background:var(--gold);color:#2a1a05}
+@media(max-width:600px){.sc input{width:34px;height:34px;font-size:15px}.sc{gap:3px}}
+.modal label.opt{display:flex;text-transform:none;letter-spacing:0;font-size:14px;color:var(--cream);margin:0;font-weight:400}
+@media(max-width:600px){
+  .rm{gap:4px;padding:8px 6px}.rm .ball{display:none}.rp{padding:6px 5px}.edit{width:26px}
+  .brand h1{font-size:21px;letter-spacing:1px}.brand span{display:none}.logo{width:38px;height:38px}
+}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:200;width:100%;height:100%}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0d3220;border:1px solid var(--gold);padding:11px 18px;border-radius:12px;z-index:120;font-size:14px;animation:rise .25s;box-shadow:0 10px 30px rgba(0,0,0,.5)}
 @media(max-width:600px){
@@ -382,7 +399,7 @@ function tStatus(t){
   }
   const ms=t.matches.filter(m=>!m.bye);const done=ms.filter(m=>m.w).length;let ch=null,tie=false;
   if(ms.length&&done===ms.length){const s=standings(t);
-    if(s[1]&&s[0].P===s[1].P&&s[0].V===s[1].V&&s[0].D===s[1].D)tie=true;else ch=s[0].id}
+    if(s[1]&&cmpSt(t,s[0],s[1])===0)tie=true;else ch=s[0].id}
   return{tot:ms.length,done,ch,tie};
 }
 function renderCamps(){
@@ -449,15 +466,16 @@ function askConfirm(msg,yes,label='Confirmar'){
 /* novo campeonato */
 function openNew(){
   if(S.players.length<2){toast('Cadastre pelo menos 2 jogadores');setTab('players');return}
-  NT={name:'Campeonato de Sinuca',fmt:'ko',sel:new Set(S.players.map(p=>p.id)),pw:3,pd:1,pl:0,dbl:false,full:true};
+  NT={name:'Campeonato de Sinuca',fmt:'ko',sel:new Set(S.players.map(p=>p.id)),pw:3,pd:1,pl:0,dbl:false,full:true,useScore:true,frames:6,allowDraw:true,tb:[...TB_DEF]};
   drawNew();
 }
 function drawNew(){
+  ruleCtx='new';
   const chips=S.players.map((p,i)=>`<div class="chip ${NT.sel.has(p.id)?'on':''}" onclick="togSel('${p.id}')">${ball(i%15+1,24)}${esc(p.name)}</div>`).join('');
   const n=NT.sel.size;
   let info='';
   if(NT.fmt==='ko'){const m=NT.full?Math.max(1,nextPow2(n)/2):Math.ceil(n/2);info=`${m} confronto(s) na 1ª fase${2*m-n>0?` · ${2*m-n} folga(s)`:''}`}
-  else{const k=n%2?n:n-1;info=`${n*(n-1)/2*(NT.dbl?2:1)} jogos em ${k*(NT.dbl?2:1)} rodada(s)`}
+  else{const k=n%2?n:n-1,d=NT.dbl?2:1;info=`${n*(n-1)/2*d} jogos em ${k*d} rodada(s) · cada jogador faz ${(n-1)*d} jogo(s)`}
   openModal(`<h2>Novo campeonato</h2>
   <label>Nome</label><input class="inp" id="tn" value="${esc(NT.name)}" oninput="NT.name=this.value" maxlength="60">
   <label>Formato</label>
@@ -467,10 +485,8 @@ function drawNew(){
   </div>
   <div class="opts">${NT.fmt==='ko'
     ?`<label class="opt"><input type="checkbox" ${NT.full?'checked':''} onchange="NT.full=this.checked;drawNew()"> Chave completa (2, 4, 8, 16…)</label>`
-    :`<span class="opt">Vitória <input type="number" min="0" value="${NT.pw}" onchange="NT.pw=+this.value||0;drawNew()"> pts</span>
-      <span class="opt">Empate <input type="number" min="0" value="${NT.pd}" onchange="NT.pd=+this.value||0;drawNew()"> pts</span>
-      <span class="opt">Derrota <input type="number" min="0" value="${NT.pl}" onchange="NT.pl=+this.value||0;drawNew()"> pts</span>
-      <label class="opt"><input type="checkbox" ${NT.dbl?'checked':''} onchange="NT.dbl=this.checked;drawNew()"> Ida e volta</label>`}</div>
+    :`<label class="opt"><input type="checkbox" ${NT.dbl?'checked':''} onchange="NT.dbl=this.checked;drawNew()"> Ida e volta (cada dupla joga 2 vezes)</label>`}</div>
+  ${rulesHTML(NT,NT.fmt)}
   <label style="display:flex;justify-content:space-between;align-items:center">Jogadores (${n})
     <span><button class="link" onclick="NT.sel=new Set(S.players.map(p=>p.id));drawNew()">todos</button> · <button class="link" onclick="NT.sel=new Set();drawNew()">nenhum</button></span></label>
   <div class="pick">${chips}</div>
@@ -491,7 +507,7 @@ function createT(){
   const ids=S.players.filter(p=>NT.sel.has(p.id)).map(p=>p.id);
   if(ids.length<2)return;
   const t={id:uid(),name:NT.name.trim()||'Campeonato de Sinuca',format:NT.fmt,createdAt:Date.now(),playerIds:ids,
-    names:{},balls:{},pw:NT.pw,pd:NT.pd,pl:NT.pl,dbl:NT.dbl,full:NT.full,r0:[],win:{},over:{},matches:[],champSeen:null};
+    names:{},balls:{},pw:NT.pw,pd:NT.pd,pl:NT.pl,dbl:NT.dbl,full:NT.full,useScore:NT.useScore,frames:NT.frames,allowDraw:NT.allowDraw,tb:[...NT.tb],score:{},r0:[],win:{},over:{},matches:[],champSeen:null};
   t.phones={};ids.forEach(id=>{const p=S.players.find(p=>p.id===id);t.names[id]=p.name;t.phones[id]=p.phone||'';t.balls[id]=pBall(id)});
   doDraw(t);S.tournaments.push(t);save();closeModal();go('tour',t.id);showDraw(t);
 }
@@ -634,7 +650,7 @@ function slotHTML(t,m,r,i,s){
     const full=isP(m.a)&&isP(m.b),win=full&&m.w===v,lose=full&&m.w&&m.w!==v;
     return `<div class="slot ${win?'win':''} ${lose?'lose':''}" ${attrs}>
       <div class="pn" data-drag data-pid="${v}" data-src="${r}-${i}-${s}">${tBall(t,v,22)}<span>${esc(tName(t,v))}</span></div>
-      ${ovb}${win?'<span class="ck">✓</span>':''}</div>`;
+      ${ovb}${t.useScore&&full&&t.score&&t.score[m.key]&&hasSc(t.score[m.key][s])?`<span class="scn ${win?'w':''}">${t.score[m.key][s]}</span>`:win?'<span class="ck">✓</span>':''}</div>`;
   }
   if(empty)return `<div class="slot empty" ${attrs}>vazio — toque ou arraste</div>`;
   if(v==='BYE')return `<div class="slot bye" ${attrs}>folga ${ovb}</div>`;
@@ -642,7 +658,7 @@ function slotHTML(t,m,r,i,s){
 }
 function cleanKeys(t){
   const L=koShape(t.r0.length);
-  for(const o of [t.win,t.over])Object.keys(o).forEach(k=>{const [r,i]=k.split('-').map(Number);if(r>=L.length||i>=L[r])delete o[k]});
+  t.score=t.score||{};for(const o of [t.win,t.over,t.score])Object.keys(o).forEach(k=>{const [r,i]=k.split('-').map(Number);if(r>=L.length||i>=L[r])delete o[k]});
 }
 function addChave(){const t=cur();snap();t.r0.push([null,null]);cleanKeys(t);save();render()}
 function remChave(){const t=cur();if(t.r0.length<=1)return;snap();t.r0.pop();cleanKeys(t);save();render()}
@@ -669,11 +685,22 @@ function openMatch(r,i){
   else if(isP(m.w))res=`<p class="sub">${esc(tName(t,m.w))} avança direto por folga. Para mudar, escolha um adversário abaixo.</p>`;
   else res=`<p class="sub">Aguardando os dois jogadores deste jogo.</p>`;
   openModal(`<h2>J${num} · ${roundName(r,R.length)}</h2>
+    ${full&&t.useScore?`<label>Placar (partidas ganhas)${+t.frames?` — de ${t.frames}`:''}</label>
+      <div class="sc big"><input inputmode="numeric" value="${(t.score&&t.score[key]&&t.score[key][0])??''}" placeholder="-" onchange="koScore(${r},${i},0,this.value)"><b>×</b><input inputmode="numeric" value="${(t.score&&t.score[key]&&t.score[key][1])??''}" placeholder="-" onchange="koScore(${r},${i},1,this.value)"></div>
+      <p class="hint">${esc(tName(t,m.a))} × ${esc(tName(t,m.b))} — o vencedor é marcado sozinho pelo placar.</p>`:''}
     <label>Quem venceu?</label>${res}
     <label>Jogador de cima</label>${selFor(0)}
     <label>Jogador de baixo</label>${selFor(1)}
     <p class="hint">${r===0?'Escolher um jogador que já está em outro jogo troca os dois de lugar.':'"Automático" usa o vencedor do jogo anterior. Escolher um nome coloca o jogador à mão.'}</p>
     <div class="actions"><button class="btn gold" onclick="closeModal()">Pronto</button></div>`);
+}
+function koScore(r,i,s,v){
+  const t=cur();t.score=t.score||{};const k=r+'-'+i,sc=[...(t.score[k]||['',''])];
+  sc[s]=String(v).replace(/\D/g,'').slice(0,2);if(!checkScore(t,sc[0],sc[1])){openMatch(r,i);return}
+  snap();t.score[k]=sc;const m=computeKO(t)[r][i],w=scoreW(m.a,m.b,sc[0],sc[1]);
+  if(w==='TIE'){delete t.win[k];save();render();openMatch(r,i);toast('Placar empatado — escolha abaixo quem passa (desempate)');return}
+  if(w){t.win[k]=w;save();closeModal();render();toast(`${tName(t,w)} avançou ✓ (${sc[0]} × ${sc[1]})`);return}
+  save();render();openMatch(r,i);
 }
 function setWin(r,i,pid){
   const t=cur();snap();const k=r+'-'+i;
@@ -681,7 +708,7 @@ function setWin(r,i,pid){
   t.win[k]=pid;save();closeModal();render();toast(`${tName(t,pid)} avançou ✓`);
 }
 function setSlot(r,i,s,val){
-  const t=cur();snap();
+  const t=cur();snap();if(t.score)delete t.score[r+'-'+i];
   if(r===0){
     const pid=val||null,prev=t.r0[i][s];
     if(pid&&prev!==pid){let from=null;t.r0.forEach((m,mi)=>m.forEach((x,si)=>{if(x===pid)from=[mi,si]}));
@@ -701,7 +728,7 @@ function dropKO(pid,src,tgt){
       let from=null;t.r0.forEach((m,mi)=>m.forEach((x,si)=>{if(x===pid)from=[mi,si]}));
       if(from)t.r0[from[0]][from[1]]=prev;
       t.r0[i][s]=pid;
-      delete t.win['0-'+i];if(from)delete t.win['0-'+from[0]];
+      delete t.win['0-'+i];if(from)delete t.win['0-'+from[0]];if(t.score){delete t.score['0-'+i];if(from)delete t.score['0-'+from[0]]}
     }else{
       const R=computeKO(t),fi=2*i+s,f=R[r-1][fi],k=`${r}-${i}-${s}`;
       if(f&&(f.a===pid||f.b===pid)&&isP(f.a)&&isP(f.b)){t.win[(r-1)+'-'+fi]=pid;delete t.over[k]}
@@ -728,73 +755,172 @@ function schedule(ids,dbl){
   }));
   return out;
 }
-/* ============ pontos corridos (v2: vitória / empate / derrota) ============ */
+/* ============ regras do jogo (editáveis) ============ */
+const TB_DEF=['V','SP','PP','CD','D'];
+const TBN={V:'Mais vitórias',SP:'Melhor saldo de partidas',PP:'Mais partidas ganhas',CD:'Confronto direto (quem ganhou o jogo entre eles)',D:'Menos derrotas'};
+let ruleCtx='new';
+const ruleSrc=()=>ruleCtx==='new'?NT:cur();
+const hasSc=v=>v!==undefined&&v!==null&&v!=='';
+function ruleSummary(o,fmt){
+  const f=+o.frames||0,parts=[];
+  if(o.useScore){
+    parts.push(f?`Cada jogo tem <b>${f} partidas</b>. Vence quem ganhar mais partidas.`:'Placar livre: vence quem ganhar mais partidas.');
+    if(fmt==='ko')parts.push('No mata-mata não existe empate: se o placar empatar, você escolhe quem passa.');
+    else if(o.allowDraw!==false)parts.push(f&&f%2===0?`${f/2} x ${f/2} é <b>empate</b>.`:'Placar igual é <b>empate</b>.');
+    else parts.push('Empate não é permitido: placar igual fica pendente até o desempate.');
+  }else parts.push(fmt==='ko'?'Sem placar: você só marca quem venceu.':'Sem placar: você marca vitória, empate ou derrota.');
+  if(fmt==='rr')parts.push(`Pontos: vitória ${o.pw??3} · empate ${o.pd??1} · derrota ${o.pl??0}.`);
+  return parts.join(' ');
+}
+function rulesHTML(o,fmt){
+  const tb=o.tb||TB_DEF;
+  return `<label>Regras do jogo</label>
+  <div class="opts" style="margin-top:0">
+    <label class="opt"><input type="checkbox" ${o.useScore?'checked':''} onchange="ruleSet('useScore',this.checked)"> Anotar placar de partidas</label>
+    ${o.useScore?`<span class="opt">Partidas por jogo <input type="number" min="0" max="99" value="${+o.frames||0}" onchange="ruleSet('frames',Math.max(0,+this.value||0))"></span>`:''}
+    ${fmt==='rr'?`<label class="opt"><input type="checkbox" ${o.allowDraw!==false?'checked':''} onchange="ruleSet('allowDraw',this.checked)"> Permitir empate</label>`:''}
+  </div>
+  ${fmt==='rr'?`<div class="opts">
+    <span class="opt">Vitória <input type="number" min="0" value="${o.pw??3}" onchange="ruleSet('pw',+this.value||0)"> pts</span>
+    <span class="opt">Empate <input type="number" min="0" value="${o.pd??1}" onchange="ruleSet('pd',+this.value||0)"> pts</span>
+    <span class="opt">Derrota <input type="number" min="0" value="${o.pl??0}" onchange="ruleSet('pl',+this.value||0)"> pts</span></div>
+  <label>Desempate (quando empatar em pontos)</label>
+  <div class="tbl">${tb.map((k,i)=>`<div class="tbi"><b>${i+1}º</b><span>${TBN[k]}</span>
+    <button class="x" title="Subir" onclick="tbMove(${i},-1)" ${i?'':'disabled'}>↑</button><button class="x" title="Descer" onclick="tbMove(${i},1)" ${i<tb.length-1?'':'disabled'}>↓</button></div>`).join('')}</div>`:''}
+  <p class="rsum">📋 ${ruleSummary(o,fmt)}</p>`;
+}
+function ruleSet(k,v){
+  if(ruleCtx==='new'){NT[k]=v;drawNew();return}
+  const t=cur();snap();t[k]=v;recompute(t);save();render();openEditT();
+}
+function tbMove(i,d){const tb=[...(ruleSrc().tb||TB_DEF)],j=i+d;if(j<0||j>=tb.length)return;[tb[i],tb[j]]=[tb[j],tb[i]];ruleSet('tb',tb)}
+function scoreW(a,b,sa,sb){if(!hasSc(sa)||!hasSc(sb))return null;sa=+sa;sb=+sb;return sa>sb?a:sb>sa?b:'TIE'}
+function rrW(t,m){const w=scoreW(m.a,m.b,m.sa,m.sb);if(w==='TIE')return t.allowDraw!==false?'DRAW':null;return w}
+function recompute(t){
+  if(!t.useScore)return;
+  if(t.format==='rr')t.matches.forEach(m=>{if(hasSc(m.sa)&&hasSc(m.sb))m.w=rrW(t,m)});
+  else Object.entries(t.score||{}).forEach(([k,[sa,sb]])=>{const R=computeKO(t),[r,i]=k.split('-').map(Number),m=R[r]&&R[r][i];
+    if(m&&isP(m.a)&&isP(m.b)){const w=scoreW(m.a,m.b,sa,sb);if(w&&w!=='TIE')t.win[k]=w}});
+}
+function checkScore(t,sa,sb){
+  const f=+t.frames||0;
+  if(f&&((hasSc(sa)&&+sa>f)||(hasSc(sb)&&+sb>f))){toast(`Máximo de ${f} partidas por jogo`);return false}
+  if(f&&hasSc(sa)&&hasSc(sb)&&+sa+ +sb>f){toast(`A soma passa de ${f} partidas`);return false}
+  return true;
+}
+
+/* ============ pontos corridos (v3: placar de partidas) ============ */
+function h2h(t,p,q){let pts=0;const pw=t.pw??3,pd=t.pd??1,pl=t.pl??0;
+  t.matches.forEach(m=>{if(m.bye||!m.w)return;if(!((m.a===p&&m.b===q)||(m.a===q&&m.b===p)))return;pts+=m.w==='DRAW'?pd:m.w===p?pw:pl});return pts}
+function cmpSt(t,x,y){
+  if(y.P!==x.P)return y.P-x.P;
+  for(const k of(t.tb||TB_DEF)){let d=0;
+    if(k==='V')d=y.V-x.V;else if(k==='SP')d=(y.PP-y.PC)-(x.PP-x.PC);else if(k==='PP')d=y.PP-x.PP;
+    else if(k==='D')d=x.D-y.D;else if(k==='CD')d=h2h(t,y.id,x.id)-h2h(t,x.id,y.id);
+    if(d)return d}
+  return 0;
+}
 function standings(t){
   const pw=t.pw??3,pd=t.pd??1,pl=t.pl??0,st={};
-  t.playerIds.forEach(id=>st[id]={id,P:0,J:0,V:0,E:0,D:0});
+  t.playerIds.forEach(id=>st[id]={id,P:0,J:0,V:0,E:0,D:0,PP:0,PC:0});
   t.matches.forEach(m=>{
     if(m.bye||!m.w||!st[m.a]||!st[m.b])return;const A=st[m.a],B=st[m.b];A.J++;B.J++;
     if(m.w==='DRAW'){A.E++;B.E++;A.P+=pd;B.P+=pd}
     else{const W=m.w===m.a?A:B,L=W===A?B:A;W.V++;L.D++;W.P+=pw;L.P+=pl}
+    if(t.useScore&&hasSc(m.sa)&&hasSc(m.sb)){A.PP+=+m.sa;A.PC+=+m.sb;B.PP+=+m.sb;B.PC+=+m.sa}
   });
   const mx=Math.max(pw,pd,pl)||1;
-  return Object.values(st).map(s=>(s.AP=s.J?Math.round(s.P/(s.J*mx)*100):0,s))
-    .sort((x,y)=>y.P-x.P||y.V-x.V||x.D-y.D||tName(t,x.id).localeCompare(tName(t,y.id)));
+  return Object.values(st).map(s=>(s.AP=s.J?Math.round(s.P/(s.J*mx)*100):0,s.SP=s.PP-s.PC,s))
+    .sort((x,y)=>cmpSt(t,x,y)||tName(t,x.id).localeCompare(tName(t,y.id)));
 }
 const TIPS=t=>({
-  '#':'<b># — Posição</b><br>Critério de desempate: pontos → vitórias → menos derrotas.',
+  '#':`<b># — Posição</b><br>Ordem: pontos, depois ${(t.tb||TB_DEF).map(k=>TBN[k].toLowerCase()).join(' → ')}. Dá para mudar em ⚙️ Editar.`,
   P:`<b>P — Pontos</b><br>Vitória = ${t.pw??3} · Empate = ${t.pd??1} · Derrota = ${t.pl??0} ponto(s).`,
   J:'<b>J — Jogos</b><br>Quantos jogos o jogador já disputou.',
   V:'<b>V — Vitórias</b><br>Jogos que o jogador ganhou.',
   E:'<b>E — Empates</b><br>Jogos que terminaram empatados.',
   D:'<b>D — Derrotas</b><br>Jogos que o jogador perdeu.',
+  PP:'<b>PP — Partidas pró</b><br>Total de partidas que o jogador ganhou, somando todos os jogos.',
+  PC:'<b>PC — Partidas contra</b><br>Total de partidas que os adversários ganharam dele.',
+  SP:'<b>SP — Saldo de partidas</b><br>Partidas pró menos partidas contra (PP − PC).',
   '%':'<b>% — Aproveitamento</b><br>Pontos conquistados ÷ pontos que poderia ter feito nos jogos disputados.'});
 function th(k,t){return `${k}<i class="info" data-tip="${esc(TIPS(t)[k])}">i</i>`}
 function rrRounds(t){return [...new Set(t.matches.filter(m=>!m.bye).map(m=>m.round))].sort((a,b)=>a-b)}
+function stCols(t){return t.useScore?['P','J','V','E','D','PP','PC','SP','%']:['P','J','V','E','D','%']}
 function renderRR(t){
-  const ms=t.matches.filter(m=>!m.bye),rIdx=rrRounds(t);
+  const ms=t.matches.filter(m=>!m.bye),rIdx=rrRounds(t),f=+t.frames||0;
   const row=m=>{const cls=id=>m.w==='DRAW'?'draw':m.w?(m.w===id?'win':'lose'):'';
-    return `<div class="rm ${m.w?'done':''}">
-      <div class="rp ${cls(m.a)}" onclick="rrRes('${m.id}','${m.a}')">${tBall(t,m.a,24)}<span>${esc(tName(t,m.a))}</span></div>
-      <button class="drawbtn ${m.w==='DRAW'?'on':''}" onclick="rrRes('${m.id}','DRAW')">Empate</button>
-      <div class="rp r ${cls(m.b)}" onclick="rrRes('${m.id}','${m.b}')">${tBall(t,m.b,24)}<span>${esc(tName(t,m.b))}</span></div>
-      <button class="edit" title="Editar jogo" onclick="openRRMatch('${m.id}')">✎</button></div>`};
+    const pend=t.useScore&&hasSc(m.sa)&&hasSc(m.sb)&&!m.w;
+    const mid=t.useScore
+      ?`<div class="sc"><input inputmode="numeric" data-sk="${m.id}-a" value="${hasSc(m.sa)?m.sa:''}" placeholder="-" onchange="rrScore('${m.id}','a',this.value)"><b>×</b><input inputmode="numeric" data-sk="${m.id}-b" value="${hasSc(m.sb)?m.sb:''}" placeholder="-" onchange="rrScore('${m.id}','b',this.value)"></div>`
+      :`<button class="drawbtn ${m.w==='DRAW'?'on':''}" onclick="rrRes('${m.id}','DRAW')">Empate</button>`;
+    const click=id=>t.useScore?'':`onclick="rrRes('${m.id}','${id}')"`;
+    return `<div class="rm ${m.w?'done':''} ${pend?'pendt':''}">
+      <div class="rp ${cls(m.a)}" ${click(m.a)}>${tBall(t,m.a,24)}<span>${esc(tName(t,m.a))}</span></div>${mid}
+      <div class="rp r ${cls(m.b)}" ${click(m.b)}>${tBall(t,m.b,24)}<span>${esc(tName(t,m.b))}</span></div>
+      <button class="edit" title="Editar jogo" onclick="openRRMatch('${m.id}')">✎</button>
+      ${m.w==='DRAW'&&t.useScore?'<div class="rmnote">🤝 Empate</div>':''}${pend?'<div class="rmnote warn2">⚠️ Placar empatado e empate não é permitido — use ✎ para definir o vencedor</div>':''}</div>`};
   const rounds=rIdx.map((r,ri)=>{
     const rm=ms.filter(m=>m.round===r),done=rm.filter(m=>m.w).length;
     const pl=new Set(rm.flatMap(m=>[m.a,m.b])),fol=t.playerIds.filter(id=>!pl.has(id));
     return `<div class="round"><h4>${ri+1}ª Rodada <small>${done}/${rm.length} jogos</small></h4>${rm.map(row).join('')}
       ${fol.length?`<div class="folga">Folga: ${fol.map(id=>esc(tName(t,id))).join(', ')}</div>`:''}</div>`}).join('')
     ||'<p class="sub">Nenhum jogo ainda. Use ＋ Adicionar jogo.</p>';
-  const sd=standings(t),any=ms.some(m=>m.w);
+  const sd=standings(t),any=ms.some(m=>m.w),cols=stCols(t);
+  const val=(s,k)=>k==='%'?s.AP+'%':k==='SP'?(s.SP>0?'+':'')+s.SP:s[k];
   const rows=sd.map((s,i)=>`<tr class="${i===0&&any?'lead':''}"><td><span class="pos">${i+1}</span></td>
     <td class="n"><div>${tBall(t,s.id,22)}${esc(tName(t,s.id))}</div></td>
-    <td class="pts">${s.P}</td><td>${s.J}</td><td>${s.V}</td><td>${s.E}</td><td>${s.D}</td><td>${s.AP}%</td></tr>`).join('');
+    ${cols.map(k=>`<td class="${k==='P'?'pts':''}">${val(s,k)}</td>`).join('')}</tr>`).join('');
   return `<div class="toolbar"><button class="btn ghost sm" onclick="openRRMatch()">＋ Adicionar jogo</button>
-    <span class="tip">👆 Toque em quem venceu ou em Empate · toque de novo para desfazer · ✎ edita o jogo</span></div>
+    <span class="rulechip" data-tip="${esc(ruleSummary(t,'rr'))}">📋 ${t.useScore?(f?`${f} partidas por jogo`:'Placar livre'):'Sem placar'}${t.allowDraw===false?' · sem empate':''}</span>
+    <span class="tip">${t.useScore?'✍️ Digite as partidas que cada um ganhou — o resultado sai sozinho · ✎ edita o jogo':'👆 Toque em quem venceu ou em Empate · toque de novo para desfazer · ✎ edita o jogo'}</span></div>
   <div class="rrgrid"><div class="card">${rounds}</div>
   <div class="card sticky"><h4 style="font-family:'Bebas Neue';font-size:24px;letter-spacing:1.3px;margin-bottom:8px">Classificação</h4>
-  <div style="overflow-x:auto"><table class="st"><thead><tr><th>${th('#',t)}</th><th>Jogador</th><th>${th('P',t)}</th><th>${th('J',t)}</th><th>${th('V',t)}</th><th>${th('E',t)}</th><th>${th('D',t)}</th><th>${th('%',t)}</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div style="overflow-x:auto"><table class="st"><thead><tr><th>${th('#',t)}</th><th>Jogador</th>${cols.map(k=>`<th>${th(k,t)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>
   <p class="hint" style="margin-top:10px">Toque no <i class="info" style="pointer-events:none">i</i> de cada letra para ver o que significa.</p></div></div>`;
 }
 function rrRes(mid,v){const t=cur(),m=t.matches.find(x=>x.id===mid);snap();m.w=m.w===v?null:v;save();render()}
+function rrScore(mid,side,v){
+  const t=cur(),m=t.matches.find(x=>x.id===mid);v=String(v).replace(/\D/g,'').slice(0,2);
+  const sa=side==='a'?v:m.sa,sb=side==='b'?v:m.sb;
+  if(!checkScore(t,sa,sb)){render();return}
+  snap();m.sa=sa;m.sb=sb;
+  m.w=hasSc(sa)&&hasSc(sb)?rrW(t,m):null;
+  save();render();
+  // vai direto para o próximo campo
+  const all=[...document.querySelectorAll('[data-sk]')],i=all.findIndex(e=>e.dataset.sk===`${mid}-${side}`);
+  const nx=all[i+1];if(nx&&v!==''){nx.focus();nx.select&&nx.select()}
+}
 function openRRMatch(mid){
   const t=cur(),m=mid?t.matches.find(x=>x.id===mid):null,rIdx=rrRounds(t);
   const opt=sel=>t.playerIds.map(id=>`<option value="${id}" ${id===sel?'selected':''}>${esc(tName(t,id))}</option>`).join('');
   const a=m?m.a:t.playerIds[0],b=m?m.b:t.playerIds[1],rs=m?m.round:rIdx[rIdx.length-1];
+  const res=m?.w||'';
   openModal(`<h2>${m?'Editar jogo':'Novo jogo'}</h2>
     <label>Jogador 1</label><select class="inp" id="ma">${opt(a)}</select>
     <label>Jogador 2</label><select class="inp" id="mb">${opt(b)}</select>
+    ${t.useScore?`<label>Placar (partidas ganhas)${+t.frames?` — de ${t.frames}`:''}</label>
+      <div class="sc big"><input id="msa" inputmode="numeric" value="${m&&hasSc(m.sa)?m.sa:''}" placeholder="-"><b>×</b><input id="msb" inputmode="numeric" value="${m&&hasSc(m.sb)?m.sb:''}" placeholder="-"></div>`:''}
+    <label>Resultado ${t.useScore?'(se precisar definir à mão, ex.: desempate)':''}</label>
+    <select class="inp" id="mw"><option value="" ${res===''?'selected':''}>${t.useScore?'Automático pelo placar':'Ainda não jogado'}</option>
+      <option value="A" ${m&&res===m.a?'selected':''}>Jogador 1 venceu</option><option value="DRAW" ${res==='DRAW'?'selected':''}>Empate</option><option value="B" ${m&&res===m.b?'selected':''}>Jogador 2 venceu</option></select>
     <label>Rodada</label><select class="inp" id="mr">${rIdx.map((r,i)=>`<option value="${r}" ${r===rs?'selected':''}>${i+1}ª rodada</option>`).join('')}<option value="new" ${rIdx.length?'':'selected'}>Nova rodada</option></select>
     <div class="actions">${m?`<button class="btn danger" style="margin-right:auto" onclick="delRRMatch('${m.id}')">Excluir jogo</button>`:''}
     <button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn gold" onclick="saveRRMatch('${m?m.id:''}')">Salvar</button></div>`);
 }
 function saveRRMatch(mid){
-  const t=cur(),a=$('#ma').value,b=$('#mb').value;let r=$('#mr').value;
+  const t=cur(),a=$('#ma').value,b=$('#mb').value,wv=$('#mw').value;let r=$('#mr').value;
   if(a===b){toast('Escolha dois jogadores diferentes');return}
+  let sa='',sb='';
+  if(t.useScore){sa=$('#msa').value.replace(/\D/g,'').slice(0,2);sb=$('#msb').value.replace(/\D/g,'').slice(0,2);if(!checkScore(t,sa,sb))return}
   r=r==='new'?Math.max(-1,...t.matches.map(x=>x.round))+1:+r;
   snap();
-  if(mid){const m=t.matches.find(x=>x.id===mid);if(m.w&&m.w!=='DRAW'&&m.w!==a&&m.w!==b)m.w=null;m.a=a;m.b=b;m.round=r}
-  else t.matches.push({id:uid(),round:r,a,b,w:null});
+  let m=mid?t.matches.find(x=>x.id===mid):null;
+  if(!m){m={id:uid(),round:r,a,b,w:null};t.matches.push(m)}
+  m.a=a;m.b=b;m.round=r;
+  if(t.useScore){m.sa=sa;m.sb=sb}
+  if(wv==='A')m.w=a;else if(wv==='B')m.w=b;else if(wv==='DRAW')m.w='DRAW';
+  else m.w=t.useScore&&hasSc(sa)&&hasSc(sb)?rrW(t,m):null;
   save();closeModal();render();
 }
 function delRRMatch(mid){const t=cur();snap();t.matches=t.matches.filter(x=>x.id!==mid);save();closeModal();render();toast('Jogo excluído — ↩ Desfazer traz de volta')}
@@ -811,13 +937,11 @@ function undo(){
 
 /* ============ editar campeonato depois do sorteio ============ */
 function openEditT(){
-  const t=cur(),others=S.players.filter(p=>!t.playerIds.includes(p.id));
+  ruleCtx='edit';const t=cur(),others=S.players.filter(p=>!t.playerIds.includes(p.id));
   openModal(`<h2>Editar campeonato</h2>
   <label>Nome</label><input class="inp" value="${esc(t.name)}" onchange="editTF('name',this.value)">
-  ${t.format==='rr'?`<label>Pontuação</label><div class="opts" style="margin-top:0">
-    <span class="opt">Vitória <input type="number" min="0" value="${t.pw??3}" onchange="editTF('pw',this.value)"></span>
-    <span class="opt">Empate <input type="number" min="0" value="${t.pd??1}" onchange="editTF('pd',this.value)"></span>
-    <span class="opt">Derrota <input type="number" min="0" value="${t.pl??0}" onchange="editTF('pl',this.value)"></span></div>`:''}
+  ${rulesHTML(t,t.format)}
+  <p class="hint">Mudou as regras? A classificação é recalculada na hora com os placares já lançados.</p>
   <label>Jogadores no campeonato (${t.playerIds.length})</label>
   <div class="tplist">${t.playerIds.map(id=>`<span class="chip on" style="cursor:default">${tBall(t,id,22)}${esc(tName(t,id))}<button class="x" title="Tirar do campeonato" onclick="remFromT('${id}')">×</button></span>`).join('')}</div>
   <label>Adicionar jogador</label>
@@ -932,35 +1056,35 @@ function printHTML(t,mode){
   let h=`<h1>${esc(t.name)}</h1><div class="meta">${t.format==='ko'?'Mata-mata':'Pontos corridos'} · ${t.playerIds.length} jogadores · ${blank?'Folha para marcar resultados':'Situação em '+now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>`;
   if(t.format==='ko'){
     const R=computeKO(t);
-    if(blank)h+=`<p class="note">Marque ☑ o quadrado de quem venceu. Nas fases seguintes, escreva o nome do vencedor do jogo indicado.</p>`;
+    if(blank)h+=`<p class="note">${t.useScore?`Anote o placar (partidas ganhas${+t.frames?`, de ${t.frames}`:''}) e marque ☑ quem venceu.`:'Marque ☑ o quadrado de quem venceu.'} Nas fases seguintes, escreva o nome do vencedor do jogo indicado.</p>`;
     R.forEach((round,r)=>{
-      h+=`<h2>${roundName(r,R.length)}</h2><table><tr><th style="width:44px">Jogo</th><th>Jogador</th><th style="width:24px"></th><th>Jogador</th>${blank?'':'<th>Vencedor</th>'}</tr>`;
+      h+=`<h2>${roundName(r,R.length)}</h2><table><tr><th style="width:44px">Jogo</th><th>Jogador</th><th style="width:24px"></th><th>Jogador</th>${t.useScore?'<th style="width:90px">Placar</th>':''}${blank?'':'<th>Vencedor</th>'}</tr>`;
       round.forEach((m,i)=>{
         const num=koNum(R,r,i),fi=2*i;
         const cell=(v,s)=>{if(isP(v))return(blank?B:'')+N(v);if(v==='BYE')return '<i>folga</i>';
           return blank?`${B}<span class="line"></span><small> (venc. J${r>0&&fi+s<R[r-1].length?koNum(R,r-1,fi+s):'?'})</small>`:'<i>a definir</i>'};
-        h+=`<tr><td>J${num}</td><td>${cell(m.a,0)}</td><td>x</td><td>${cell(m.b,1)}</td>${blank?'':`<td class="w">${isP(m.w)?N(m.w)+(isP(m.a)&&isP(m.b)?'':' (folga)'):''}</td>`}</tr>`});
+        h+=`<tr><td>J${num}</td><td>${cell(m.a,0)}</td><td>x</td><td>${cell(m.b,1)}</td>${t.useScore?`<td>${blank?'___ × ___':(t.score&&t.score[m.key]&&hasSc(t.score[m.key][0])?t.score[m.key][0]+' × '+t.score[m.key][1]:'')}</td>`:''}${blank?'':`<td class="w">${isP(m.w)?N(m.w)+(isP(m.a)&&isP(m.b)?'':' (folga)'):''}</td>`}</tr>`});
       h+='</table>';
     });
     const ch=koChampion(t,R);
     h+=blank?`<h2>Campeão</h2><p>🏆 <span class="line" style="min-width:260px"></span></p>`:ch?`<h2>Campeão</h2><p class="w" style="font-size:16px">🏆 ${N(ch)}</p>`:'';
   }else{
     const ms=t.matches.filter(m=>!m.bye);
-    if(blank)h+=`<p class="note">Marque ☑ quem venceu ou "Empate". Pontos: vitória ${t.pw??3} · empate ${t.pd??1} · derrota ${t.pl??0}.</p>`;
+    h+=`<p class="note">${ruleSummary(t,'rr').replace(/<[^>]+>/g,'')}${blank?(t.useScore?' Anote quantas partidas cada um ganhou.':' Marque ☑ quem venceu ou "Empate".'):''}</p>`;
     rrRounds(t).forEach((r,ri)=>{
       const rm=ms.filter(m=>m.round===r);
-      h+=`<h2>${ri+1}ª Rodada</h2><table><tr><th>Jogador</th><th style="width:${blank?90:120}px">${blank?'Empate':'Resultado'}</th><th>Jogador</th></tr>`;
+      h+=`<h2>${ri+1}ª Rodada</h2><table><tr><th>Jogador</th><th style="width:${blank?110:130}px">${t.useScore?'Placar':blank?'Empate':'Resultado'}</th><th>Jogador</th></tr>`;
       rm.forEach(m=>{
-        if(blank)h+=`<tr><td>${B}${N(m.a)}</td><td>${B}Empate</td><td>${B}${N(m.b)}</td></tr>`;
-        else{const res=m.w==='DRAW'?'Empate':m.w?'Venceu: '+N(m.w):'—';
+        if(blank)h+=t.useScore?`<tr><td>${N(m.a)}</td><td style="text-align:center">______ × ______</td><td>${N(m.b)}</td></tr>`:`<tr><td>${B}${N(m.a)}</td><td>${B}Empate</td><td>${B}${N(m.b)}</td></tr>`;
+        else{const sc=t.useScore&&hasSc(m.sa)&&hasSc(m.sb)?`${m.sa} × ${m.sb} · `:'';const res=sc+(m.w==='DRAW'?'Empate':m.w?'Venceu: '+N(m.w):(sc?'pendente':'—'));
           h+=`<tr><td class="${m.w===m.a?'w':''}">${N(m.a)}</td><td>${res}</td><td class="${m.w===m.b?'w':''}">${N(m.b)}</td></tr>`}});
       h+='</table>';
     });
-    const sd=standings(t);
-    h+=`<h2>Classificação</h2><table><tr><th>#</th><th>Jogador</th><th>P</th><th>J</th><th>V</th><th>E</th><th>D</th></tr>`+
-      (blank?t.playerIds.map(id=>`<tr><td></td><td>${N(id)}</td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')
-      :sd.map((s,i)=>`<tr><td>${i+1}</td><td>${N(s.id)}</td><td class="w">${s.P}</td><td>${s.J}</td><td>${s.V}</td><td>${s.E}</td><td>${s.D}</td></tr>`).join(''))+
-      `</table><p class="note">P = Pontos · J = Jogos · V = Vitórias · E = Empates · D = Derrotas</p>`;
+    const sd=standings(t),cols=stCols(t).filter(k=>k!=='%');
+    h+=`<h2>Classificação</h2><table><tr><th>#</th><th>Jogador</th>${cols.map(k=>`<th>${k}</th>`).join('')}</tr>`+
+      (blank?t.playerIds.map(id=>`<tr><td></td><td>${N(id)}</td>${cols.map(()=>'<td></td>').join('')}</tr>`).join('')
+      :sd.map((s,i)=>`<tr><td>${i+1}</td><td>${N(s.id)}</td>${cols.map(k=>`<td class="${k==='P'?'w':''}">${k==='SP'&&s.SP>0?'+':''}${s[k]}</td>`).join('')}</tr>`).join(''))+
+      `</table><p class="note">P = Pontos · J = Jogos · V = Vitórias · E = Empates · D = Derrotas${t.useScore?' · PP = Partidas pró · PC = Partidas contra · SP = Saldo de partidas':''} · Desempate: ${(t.tb||TB_DEF).map(k=>TBN[k].toLowerCase()).join(' → ')}</p>`;
   }
   ensurePrizes(t);
   if(t.prizes.length){const G=ranking(t),st=tStatus(t);
